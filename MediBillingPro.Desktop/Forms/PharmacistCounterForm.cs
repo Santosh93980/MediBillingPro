@@ -70,6 +70,7 @@ namespace MediBillingPro.Desktop.Forms
             StyleGrid(_results);_results.CellDoubleClick+=(s,e)=>{if(e.RowIndex>=0)AddSelectedResult(e.RowIndex);};
             _results.KeyDown+=(s,e)=>{if(e.KeyCode==Keys.Enter&&_results.CurrentRow!=null){AddSelectedResult(_results.CurrentRow.Index);e.SuppressKeyPress=true;}};
             left.Controls.Add(_results,0,3);
+            left.RowCount=5; left.RowStyles.Add(new RowStyle(SizeType.Absolute,28));
 
             var right=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=5,BackColor=Color.White,Padding=new Padding(12)};
             right.RowStyles.Add(new RowStyle(SizeType.AutoSize));right.RowStyles.Add(new RowStyle(SizeType.Percent,100));right.RowStyles.Add(new RowStyle(SizeType.AutoSize));right.RowStyles.Add(new RowStyle(SizeType.AutoSize));right.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -96,7 +97,6 @@ namespace MediBillingPro.Desktop.Forms
             _status.Dock=DockStyle.Bottom;_status.Height=28;_status.ForeColor=Color.FromArgb(91,111,101);_status.Text="Double-click an item to add it to the bill.";
             left.Controls.Add(_status,0,4);
             root.Controls.Add(left,0,0);root.Controls.Add(right,1,0);Controls.Add(root);
-            left.RowCount=5;left.RowStyles.Add(new RowStyle(SizeType.Absolute,28));
             UpdateTotals();
         }
 
