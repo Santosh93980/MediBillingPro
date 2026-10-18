@@ -16,10 +16,10 @@ namespace MediBillingPro.Desktop.Forms
 
         private readonly Medicine _existing;
 
-        private readonly Color _green = Color.FromArgb(8, 127, 91);
-        private readonly Color _darkGreen = Color.FromArgb(21, 60, 49);
-        private readonly Color _page = Color.FromArgb(244, 248, 246);
-        private readonly Color _muted = Color.FromArgb(91, 111, 101);
+        private readonly Color _green = MediBillingTheme.Primary;
+        private readonly Color _darkGreen = MediBillingTheme.Secondary;
+        private readonly Color _page = MediBillingTheme.Page;
+        private readonly Color _muted = MediBillingTheme.Muted;
 
         private TextBox txtMedicineName;
         private TextBox txtGenericName;
@@ -455,7 +455,7 @@ namespace MediBillingPro.Desktop.Forms
                     highlight ? FontStyle.Bold : FontStyle.Regular),
                 ForeColor = highlight ? _green : _darkGreen,
                 BackColor = highlight
-                    ? Color.FromArgb(231, 246, 239)
+                    ? MediBillingTheme.PrimaryLight
                     : Color.White,
                 Padding = new Padding(8, 0, 0, 0),
                 Margin = new Padding(3, 5, 3, 8)
@@ -553,7 +553,7 @@ namespace MediBillingPro.Desktop.Forms
                 TextAlign = ContentAlignment.MiddleLeft,
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
                 ForeColor = _green,
-                BackColor = Color.FromArgb(231, 246, 239),
+                BackColor = MediBillingTheme.PrimaryLight,
                 Padding = new Padding(8, 0, 0, 0),
                 Margin = new Padding(0, 6, 0, 2)
             };
