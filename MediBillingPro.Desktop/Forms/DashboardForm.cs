@@ -117,14 +117,12 @@ namespace MediBillingPro.Desktop.Forms
             AddNavigation("Dashboard", "▦", ShowDashboard);
             AddNavigation("Medicine Inventory", "▤", () => OpenModule(new MedicineForm(), "Medicine Inventory"));
             AddNavigation("Suppliers", "♙", () => OpenModule(new SupplierForm(), "Suppliers"));
-            AddNavigation("Purchases", "▣", () => ShowPlaceholder("Purchases",
-                "Purchase entry and supplier invoice processing will be added here."));
-            AddNavigation("Sales & Billing", "▤", () => ShowPlaceholder("Sales & Billing",
-                "Customer billing, invoice printing and payment collection will be added here."));
-            AddNavigation("Reports", "▥", () => ShowPlaceholder("Reports",
-                "Inventory, purchase, sales and profit reports will be available here."));
-            AddNavigation("Settings", "⚙", () => ShowPlaceholder("Settings",
-                "Pharmacy profile, users, permissions and application settings will be available here."));
+            AddNavigation("Purchases", "▣", () => OpenModule(new OperationsForm("Purchases"), "Purchases"));
+            AddNavigation("Sales & Billing", "▤", () => OpenModule(new OperationsForm("Sales & Billing"), "Sales & Billing"));
+            AddNavigation("Customers", "♙", () => OpenModule(new OperationsForm("Customers"), "Customers"));
+            AddNavigation("Stock & Batches", "▦", () => OpenModule(new OperationsForm("Stock & Batches"), "Stock & Batches"));
+            AddNavigation("Reports", "▥", () => OpenModule(new OperationsForm("Reports"), "Reports"));
+            AddNavigation("Settings", "⚙", () => OpenModule(new OperationsForm("Settings"), "Settings"));
 
             _sidebarFooter = new Label
             {
@@ -343,8 +341,8 @@ namespace MediBillingPro.Desktop.Forms
             cards.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             cards.Controls.Add(CreateMetricCard("MEDICINE INVENTORY", "Manage products", "Search, edit and review medicines"), 0, 0);
             cards.Controls.Add(CreateMetricCard("SUPPLIERS", "Supplier directory", "Manage supplier contacts"), 1, 0);
-            cards.Controls.Add(CreateMetricCard("PURCHASES", "Coming soon", "Purchase workflow not connected"), 2, 0);
-            cards.Controls.Add(CreateMetricCard("SALES & BILLING", "Coming soon", "Billing workflow not connected"), 3, 0);
+            cards.Controls.Add(CreateMetricCard("PURCHASES", "Purchase entry", "Receive supplier stock"), 2, 0);
+            cards.Controls.Add(CreateMetricCard("SALES & BILLING", "Invoice billing", "Sell and track payments"), 3, 0);
             page.Controls.Add(cards);
 
             var quickTitle = new Label
@@ -393,7 +391,7 @@ namespace MediBillingPro.Desktop.Forms
             };
             var infoText = new Label
             {
-                Text = "Start with Medicine Inventory and Suppliers. Other modules now open in this workspace and will be connected as their workflows are implemented.",
+                Text = "Manage medicines and suppliers, record purchases, bill sales, maintain customers, review stock and open reports/settings.",
                 AutoSize = false,
                 Dock = DockStyle.Bottom,
                 Height = 42,
