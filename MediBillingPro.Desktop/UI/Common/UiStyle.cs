@@ -12,25 +12,25 @@ namespace MediBillingPro.Desktop.UI.Common
     {
         // Common application colors
         public static readonly Color Primary =
-            Color.FromArgb(8, 127, 91);
+            Color.FromArgb(13, 148, 136);
 
         public static readonly Color DarkGreen =
-            Color.FromArgb(21, 60, 49);
+            Color.FromArgb(30, 41, 59);
 
         public static readonly Color Secondary =
-            Color.FromArgb(108, 117, 125);
+            Color.FromArgb(71, 85, 105);
 
         public static readonly Color Danger =
-            Color.FromArgb(180, 35, 24);
+            Color.FromArgb(185, 28, 28);
 
         public static readonly Color PageBackground =
-            Color.FromArgb(244, 248, 246);
+            Color.FromArgb(246, 248, 251);
 
         public static readonly Color Muted =
-            Color.FromArgb(91, 111, 101);
+            Color.FromArgb(100, 116, 139);
 
         public static readonly Color HeaderBackground =
-            Color.FromArgb(231, 246, 239);
+            Color.FromArgb(225, 247, 244);
 
         // Primary: Add, Save, Submit
         public static Button CreatePrimaryButton(
