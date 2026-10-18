@@ -42,12 +42,20 @@ namespace MediBillingPro.Desktop.Forms
             Font = new Font("Segoe UI", 9.5F);
             AutoScaleMode = AutoScaleMode.Dpi;
 
-            var main = new Panel
+            // Two columns keep navigation separate from the page body.
+            var main = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 BackColor = Page,
-                Padding = Padding.Empty
+                Padding = Padding.Empty,
+                Margin = Padding.Empty,
+                ColumnCount = 2,
+                RowCount = 1,
+                GrowStyle = TableLayoutPanelGrowStyle.FixedSize
             };
+            main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 248F));
+            main.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            main.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
 
             _contentHost = new Panel
             {
@@ -56,7 +64,7 @@ namespace MediBillingPro.Desktop.Forms
                 Padding = new Padding(24)
             };
 
-            main.Controls.Add(_contentHost);
+            main.Controls.Add(_contentHost, 1, 0);
 
             _sidebar = new Panel
             {
@@ -133,13 +141,11 @@ namespace MediBillingPro.Desktop.Forms
             _sidebar.Controls.Add(brand);
             _sidebar.Controls.Add(_sidebarFooter);
 
-            // Keep the sidebar and content host inside the same parent.
-            // Docking them as siblings of the Form and bringing the sidebar forward
-            // can overlay the content area instead of reserving space for it.
-            main.Controls.Add(_sidebar);
+            // Reserve column 0 for the sidebar and column 1 for the page body.
+            _sidebar.Dock = DockStyle.Fill;
+            _sidebar.Margin = Padding.Empty;
+            main.Controls.Add(_sidebar, 0, 0);
             Controls.Add(main);
-            main.Controls.SetChildIndex(_sidebar, 0);
-            main.Controls.SetChildIndex(_contentHost, 1);
 
             _sidebar.Resize += (s, e) => ResizeNavigationButtons();
             ResizeNavigationButtons();
@@ -215,6 +221,8 @@ namespace MediBillingPro.Desktop.Forms
         private void ToggleSidebar()
         {
             _sidebarCollapsed = !_sidebarCollapsed;
+            if (Controls.Count > 0 && Controls[0] is TableLayoutPanel layout)
+                layout.ColumnStyles[0].Width = _sidebarCollapsed ? 72F : 248F;
             _sidebar.Width = _sidebarCollapsed ? 72 : 248;
 
             foreach (var item in _navigation)
