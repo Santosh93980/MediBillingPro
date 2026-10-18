@@ -133,10 +133,13 @@ namespace MediBillingPro.Desktop.Forms
             _sidebar.Controls.Add(brand);
             _sidebar.Controls.Add(_sidebarFooter);
 
-            // Add the fill area first, then the fixed sidebar.
+            // Keep the sidebar and content host inside the same parent.
+            // Docking them as siblings of the Form and bringing the sidebar forward
+            // can overlay the content area instead of reserving space for it.
+            main.Controls.Add(_sidebar);
             Controls.Add(main);
-            Controls.Add(_sidebar);
-            _sidebar.BringToFront();
+            main.Controls.SetChildIndex(_sidebar, 0);
+            main.Controls.SetChildIndex(_contentHost, 1);
 
             _sidebar.Resize += (s, e) => ResizeNavigationButtons();
             ResizeNavigationButtons();
