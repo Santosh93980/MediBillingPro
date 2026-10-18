@@ -359,22 +359,30 @@ namespace MediBillingPro.Desktop.Forms
             {
                 Location = new Point(0, 304),
                 Width = Math.Max(600, page.ClientSize.Width - 8),
-                Height = 62,
+                Height = 112,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 WrapContents = true,
                 BackColor = Page,
                 Margin = Padding.Empty,
                 Padding = Padding.Empty
             };
+            quickActions.Controls.Add(CreateActionButton("Purchase Entry", () =>
+                OpenModule(new OperationsForm("Purchases"), "Purchases")));
+            quickActions.Controls.Add(CreateActionButton("Start Sales Billing", () =>
+                OpenModule(new OperationsForm("Sales & Billing"), "Sales & Billing")));
             quickActions.Controls.Add(CreateActionButton("Open Medicine Inventory", () =>
                 OpenModule(new MedicineForm(), "Medicine Inventory")));
             quickActions.Controls.Add(CreateActionButton("Manage Suppliers", () =>
                 OpenModule(new SupplierForm(), "Suppliers")));
+            quickActions.Controls.Add(CreateActionButton("Customers", () =>
+                OpenModule(new OperationsForm("Customers"), "Customers")));
+            quickActions.Controls.Add(CreateActionButton("Stock & Reports", () =>
+                OpenModule(new OperationsForm("Stock & Batches"), "Stock & Batches")));
             page.Controls.Add(quickActions);
 
             var info = new Panel
             {
-                Location = new Point(0, 390),
+                Location = new Point(0, 430),
                 Width = Math.Max(600, page.ClientSize.Width - 8),
                 Height = 94,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
