@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Controls\" />
+    <Folder Include="Helpers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MediBillingPro.Application\MediBillingPro.Application.csproj" />
+    <ProjectReference Include="..\MediBillingPro.Domain\MediBillingPro.Domain.csproj" />
+    <ProjectReference Include="..\MediBillingPro.Infrastructure\MediBillingPro.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
