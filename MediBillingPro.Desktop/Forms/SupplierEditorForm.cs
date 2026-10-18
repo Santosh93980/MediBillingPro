@@ -21,8 +21,8 @@ namespace MediBillingPro.Desktop.Forms
         private readonly TextBox txtGstin = new TextBox();
         private readonly TextBox txtLicense = new TextBox();
 
-        private readonly Color green = Color.FromArgb(8, 127, 91);
-        private readonly Color page = Color.FromArgb(244, 248, 246);
+        private readonly Color green = MediBillingTheme.Primary;
+        private readonly Color page = MediBillingTheme.Page;
 
         public Supplier SupplierData { get; private set; }
 
@@ -80,7 +80,7 @@ namespace MediBillingPro.Desktop.Forms
                 Text = Text,
                 Dock = DockStyle.Fill,
                 Font = new Font("Segoe UI", 16, FontStyle.Bold),
-                ForeColor = Color.FromArgb(21, 60, 49),
+                ForeColor = MediBillingTheme.Secondary,
                 TextAlign = ContentAlignment.MiddleLeft
             };
             root.Controls.Add(title, 0, 0);
