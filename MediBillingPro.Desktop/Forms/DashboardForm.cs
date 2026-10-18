@@ -26,9 +26,13 @@ namespace MediBillingPro.Desktop.Forms
         private bool _sidebarCollapsed;
         private Form _activeChild;
         private string _activePage = "Dashboard";
+        private readonly UserSession _session;
 
-        public DashboardForm()
+        public DashboardForm() : this(null) { }
+
+        public DashboardForm(UserSession session)
         {
+            _session = session;
             BuildLayout();
             ShowDashboard();
             SetActiveNavigation("Dashboard");
@@ -117,18 +121,38 @@ namespace MediBillingPro.Desktop.Forms
             };
 
             AddNavigation("Dashboard", "▦", ShowDashboard);
-            AddNavigation("Medicine Inventory", "▤", () => OpenModule(new MedicineForm(), "Medicine Inventory"));
-            AddNavigation("Suppliers", "♙", () => OpenModule(new SupplierForm(), "Suppliers"));
-            AddNavigation("Purchases", "▣", () => OpenModule(new OperationsForm("Purchases"), "Purchases"));
-            AddNavigation("Sales & Billing", "▤", () => OpenModule(new OperationsForm("Sales & Billing"), "Sales & Billing"));
-            AddNavigation("Customers", "♙", () => OpenModule(new OperationsForm("Customers"), "Customers"));
-            AddNavigation("Stock & Batches", "▦", () => OpenModule(new OperationsForm("Stock & Batches"), "Stock & Batches"));
-            AddNavigation("Reports", "▥", () => OpenModule(new OperationsForm("Reports"), "Reports"));
-            AddNavigation("Settings", "⚙", () => OpenModule(new OperationsForm("Settings"), "Settings"));
+            if (_session == null || _session.IsAdmin)
+            {
+                AddNavigation("Medicine Inventory", "▤", () => OpenModule(new MedicineForm(), "Medicine Inventory"));
+                AddNavigation("Suppliers", "♙", () => OpenModule(new SupplierForm(), "Suppliers"));
+                AddNavigation("Purchases", "▣", () => OpenModule(new OperationsForm("Purchases"), "Purchases"));
+                AddNavigation("Counter Billing", "▤", () => OpenModule(new PharmacistCounterForm(_session), "Counter Billing"));
+                AddNavigation("Sales & Billing", "▤", () => OpenModule(new OperationsForm("Sales & Billing"), "Sales & Billing"));
+                AddNavigation("Customers", "♙", () => OpenModule(new OperationsForm("Customers"), "Customers"));
+                AddNavigation("Stock & Batches", "▦", () => OpenModule(new OperationsForm("Stock & Batches"), "Stock & Batches"));
+                AddNavigation("Reports", "▥", () => OpenModule(new OperationsForm("Reports"), "Reports"));
+                AddNavigation("Settings", "⚙", () => OpenModule(new OperationsForm("Settings"), "Settings"));
+                AddNavigation("User Management", "♙", () => OpenModule(new UserManagementForm(), "User Management"));
+            }
+            else if (_session.IsPharmacist || _session.Role == "Cashier")
+            {
+                AddNavigation("Counter Billing", "▤", () => OpenModule(new PharmacistCounterForm(_session), "Counter Billing"));
+                AddNavigation("Customers", "♙", () => OpenModule(new OperationsForm("Customers"), "Customers"));
+                if (_session.IsPharmacist)
+                    AddNavigation("Stock & Batches", "▦", () => OpenModule(new OperationsForm("Stock & Batches"), "Stock & Batches"));
+            }
+            else if (_session.Role == "Inventory Manager")
+            {
+                AddNavigation("Medicine Inventory", "▤", () => OpenModule(new MedicineForm(), "Medicine Inventory"));
+                AddNavigation("Suppliers", "♙", () => OpenModule(new SupplierForm(), "Suppliers"));
+                AddNavigation("Purchases", "▣", () => OpenModule(new OperationsForm("Purchases"), "Purchases"));
+                AddNavigation("Stock & Batches", "▦", () => OpenModule(new OperationsForm("Stock & Batches"), "Stock & Batches"));
+                AddNavigation("Reports", "▥", () => OpenModule(new OperationsForm("Reports"), "Reports"));
+            }
 
             _sidebarFooter = new Label
             {
-                Text = "Secure • Simple • Reliable",
+                Text = _session == null ? "Secure • Simple • Reliable" : _session.DisplayName + " • " + _session.Role,
                 Dock = DockStyle.Bottom,
                 Height = 38,
                 ForeColor = Color.FromArgb(184, 218, 202),
@@ -309,7 +333,7 @@ namespace MediBillingPro.Desktop.Forms
 
             var heading = new Label
             {
-                Text = "Dashboard",
+                Text = _session == null ? "Dashboard" : (_session.Role == "Pharmacist" ? "Pharmacist Dashboard" : _session.Role + " Dashboard"),
                 AutoSize = true,
                 Font = new Font("Segoe UI", 25F, FontStyle.Bold),
                 ForeColor = DarkGreen,
@@ -317,7 +341,7 @@ namespace MediBillingPro.Desktop.Forms
             };
             var subtitle = new Label
             {
-                Text = "Your pharmacy workspace at a glance.",
+                Text = _session != null && (_session.IsPharmacist || _session.Role == "Cashier") ? "Fast counter workflow: scan, add items, take payment and calculate change." : "Your pharmacy workspace at a glance.",
                 AutoSize = true,
                 Font = new Font("Segoe UI", 10.5F),
                 ForeColor = Muted,
@@ -369,18 +393,34 @@ namespace MediBillingPro.Desktop.Forms
                 Margin = Padding.Empty,
                 Padding = Padding.Empty
             };
-            quickActions.Controls.Add(CreateActionButton("Purchase Entry", () =>
-                OpenModule(new OperationsForm("Purchases"), "Purchases")));
-            quickActions.Controls.Add(CreateActionButton("Start Sales Billing", () =>
-                OpenModule(new OperationsForm("Sales & Billing"), "Sales & Billing")));
-            quickActions.Controls.Add(CreateActionButton("Open Medicine Inventory", () =>
-                OpenModule(new MedicineForm(), "Medicine Inventory")));
-            quickActions.Controls.Add(CreateActionButton("Manage Suppliers", () =>
-                OpenModule(new SupplierForm(), "Suppliers")));
-            quickActions.Controls.Add(CreateActionButton("Customers", () =>
-                OpenModule(new OperationsForm("Customers"), "Customers")));
-            quickActions.Controls.Add(CreateActionButton("Stock & Reports", () =>
-                OpenModule(new OperationsForm("Stock & Batches"), "Stock & Batches")));
+            if (_session != null && (_session.IsPharmacist || _session.Role == "Cashier"))
+            {
+                quickActions.Controls.Add(CreateActionButton("Start Counter Billing", () =>
+                    OpenModule(new PharmacistCounterForm(_session), "Counter Billing")));
+                quickActions.Controls.Add(CreateActionButton("Find Customer", () =>
+                    OpenModule(new OperationsForm("Customers"), "Customers")));
+                if (_session.IsPharmacist)
+                    quickActions.Controls.Add(CreateActionButton("Check Stock & Batches", () =>
+                        OpenModule(new OperationsForm("Stock & Batches"), "Stock & Batches")));
+            }
+            else
+            {
+                quickActions.Controls.Add(CreateActionButton("Purchase Entry", () =>
+                    OpenModule(new OperationsForm("Purchases"), "Purchases")));
+                quickActions.Controls.Add(CreateActionButton("Start Counter Billing", () =>
+                    OpenModule(new PharmacistCounterForm(_session ?? new UserSession(0, "admin", "Pharmacy Admin", "Admin")), "Counter Billing")));
+                quickActions.Controls.Add(CreateActionButton("Open Medicine Inventory", () =>
+                    OpenModule(new MedicineForm(), "Medicine Inventory")));
+                quickActions.Controls.Add(CreateActionButton("Manage Suppliers", () =>
+                    OpenModule(new SupplierForm(), "Suppliers")));
+                quickActions.Controls.Add(CreateActionButton("Customers", () =>
+                    OpenModule(new OperationsForm("Customers"), "Customers")));
+                quickActions.Controls.Add(CreateActionButton("Stock & Reports", () =>
+                    OpenModule(new OperationsForm("Stock & Batches"), "Stock & Batches")));
+                if (_session == null || _session.IsAdmin)
+                    quickActions.Controls.Add(CreateActionButton("Create / manage users", () =>
+                        OpenModule(new UserManagementForm(), "User Management")));
+            }
             page.Controls.Add(quickActions);
 
             var info = new Panel
