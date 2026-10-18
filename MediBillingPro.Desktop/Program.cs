@@ -12,12 +12,23 @@ namespace MediBillingPro.Desktop
             System.Windows.Forms.Application.EnableVisualStyles();
             System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
-            using (var login = new LoginForm())
+            // Closing the dashboard through Logout returns to the sign-in screen.
+            while (true)
             {
-                if (login.ShowDialog() != DialogResult.OK || login.Session == null)
-                    return;
+                UserSession session;
+                using (var login = new LoginForm())
+                {
+                    if (login.ShowDialog() != DialogResult.OK || login.Session == null)
+                        return;
+                    session = login.Session;
+                }
 
-                System.Windows.Forms.Application.Run(new DashboardForm(login.Session));
+                using (var dashboard = new DashboardForm(session))
+                {
+                    dashboard.ShowDialog();
+                    if (!dashboard.WasLogoutRequested)
+                        return;
+                }
             }
         }
     }
