@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Printing\" />
+    <Folder Include="Security\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MediBillingPro.Application\MediBillingPro.Application.csproj" />
+    <ProjectReference Include="..\MediBillingPro.Domain\MediBillingPro.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

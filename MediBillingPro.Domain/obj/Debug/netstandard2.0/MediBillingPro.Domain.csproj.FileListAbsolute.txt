@@ -1,0 +1,10 @@
+C:\Projects\MediBillingPro\MediBillingPro.Domain\bin\Debug\netstandard2.0\MediBillingPro.Domain.deps.json
+C:\Projects\MediBillingPro\MediBillingPro.Domain\bin\Debug\netstandard2.0\MediBillingPro.Domain.dll
+C:\Projects\MediBillingPro\MediBillingPro.Domain\bin\Debug\netstandard2.0\MediBillingPro.Domain.pdb
+C:\Projects\MediBillingPro\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projects\MediBillingPro\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.AssemblyInfoInputs.cache
+C:\Projects\MediBillingPro\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.AssemblyInfo.cs
+C:\Projects\MediBillingPro\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.csproj.CoreCompileInputs.cache
+C:\Projects\MediBillingPro\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.dll
+C:\Projects\MediBillingPro\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.pdb
+C:\Projects\MediBillingPro\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.csproj.AssemblyReference.cache

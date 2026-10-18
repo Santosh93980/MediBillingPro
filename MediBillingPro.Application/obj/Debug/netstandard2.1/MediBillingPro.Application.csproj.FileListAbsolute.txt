@@ -1,0 +1,13 @@
+C:\Projects\MediBillingPro\MediBillingPro.Application\bin\Debug\netstandard2.1\MediBillingPro.Application.deps.json
+C:\Projects\MediBillingPro\MediBillingPro.Application\bin\Debug\netstandard2.1\MediBillingPro.Application.dll
+C:\Projects\MediBillingPro\MediBillingPro.Application\bin\Debug\netstandard2.1\MediBillingPro.Application.pdb
+C:\Projects\MediBillingPro\MediBillingPro.Application\bin\Debug\netstandard2.1\MediBillingPro.Domain.dll
+C:\Projects\MediBillingPro\MediBillingPro.Application\bin\Debug\netstandard2.1\MediBillingPro.Domain.pdb
+C:\Projects\MediBillingPro\MediBillingPro.Application\obj\Debug\netstandard2.1\MediBillingPro.Application.csproj.AssemblyReference.cache
+C:\Projects\MediBillingPro\MediBillingPro.Application\obj\Debug\netstandard2.1\MediBillingPro.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projects\MediBillingPro\MediBillingPro.Application\obj\Debug\netstandard2.1\MediBillingPro.Application.AssemblyInfoInputs.cache
+C:\Projects\MediBillingPro\MediBillingPro.Application\obj\Debug\netstandard2.1\MediBillingPro.Application.AssemblyInfo.cs
+C:\Projects\MediBillingPro\MediBillingPro.Application\obj\Debug\netstandard2.1\MediBillingPro.Application.csproj.CoreCompileInputs.cache
+C:\Projects\MediBillingPro\MediBillingPro.Application\obj\Debug\netstandard2.1\MediBillingPro.Application.csproj.CopyComplete
+C:\Projects\MediBillingPro\MediBillingPro.Application\obj\Debug\netstandard2.1\MediBillingPro.Application.dll
+C:\Projects\MediBillingPro\MediBillingPro.Application\obj\Debug\netstandard2.1\MediBillingPro.Application.pdb
