@@ -262,7 +262,7 @@ namespace MediBillingPro.Desktop.Forms
                 cart.Columns.Add("LineTotal", typeof(decimal));
 
                 var addItem = new Button { Text = "+ Add medicine to purchase", Dock = DockStyle.Fill, BackColor = _green, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
-                p.Controls.Add(addItem, 0, 5); p.SetColumnSpan(addItem, 4);
+                p.Controls.Add(addItem, 0, 5); p.SetColumnSpan(addItem, 2);
 
                 var cartGrid = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoGenerateColumns = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, RowHeadersVisible = false };
                 cartGrid.DataSource = cart;
@@ -308,8 +308,7 @@ namespace MediBillingPro.Desktop.Forms
                 var removeItem = new Button { Text = "Remove selected item", Dock = DockStyle.Bottom, Height = 32, BackColor = Color.White, ForeColor = _dark, FlatStyle = FlatStyle.Flat };
                 // Place removal action above the grid as a small secondary action.
                 removeItem.Click += (s, e) => { if (cartGrid.CurrentRow != null && cartGrid.CurrentRow.Index >= 0) cart.Rows.RemoveAt(cartGrid.CurrentRow.Index); updateSummary(); };
-                p.Controls.Add(removeItem, 0, 5); p.SetColumnSpan(removeItem, 1);
-                addItem.BringToFront();
+                p.Controls.Add(removeItem, 2, 5); p.SetColumnSpan(removeItem, 2);
 
                 save.Click += (s, e) =>
                 {
