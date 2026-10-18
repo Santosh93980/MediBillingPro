@@ -24,9 +24,9 @@ namespace MediBillingPro.Desktop.Forms
         private readonly Label _changeLabel = new Label();
         private readonly Label _balanceLabel = new Label();
         private readonly Label _status = new Label();
-        private readonly Color _green = Color.FromArgb(8,127,91);
-        private readonly Color _dark = Color.FromArgb(21,60,49);
-        private readonly Color _page = Color.FromArgb(244,248,246);
+        private readonly Color _green = MediBillingTheme.Primary;
+        private readonly Color _dark = MediBillingTheme.Secondary;
+        private readonly Color _page = MediBillingTheme.Page;
         private string _upiId = "YOUR-PHARMACY-UPI-ID";
 
         public PharmacistCounterForm(UserSession session)
@@ -57,7 +57,7 @@ namespace MediBillingPro.Desktop.Forms
             var left=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=4,BackColor=_page};
             left.RowStyles.Add(new RowStyle(SizeType.AutoSize));left.RowStyles.Add(new RowStyle(SizeType.AutoSize));left.RowStyles.Add(new RowStyle(SizeType.AutoSize));left.RowStyles.Add(new RowStyle(SizeType.Percent,100));
             left.Controls.Add(new Label{Text="Counter billing",AutoSize=true,Font=new Font("Segoe UI",21,FontStyle.Bold),ForeColor=_dark,Margin=new Padding(0,0,0,4)},0,0);
-            left.Controls.Add(new Label{Text="Scan a barcode or search medicine / cosmetics. Press Enter to search.",AutoSize=true,ForeColor=Color.FromArgb(91,111,101),Margin=new Padding(0,0,0,12)},0,1);
+            left.Controls.Add(new Label{Text="Scan a barcode or search medicine / cosmetics. Press Enter to search.",AutoSize=true,ForeColor=MediBillingTheme.Muted,Margin=new Padding(0,0,0,12)},0,1);
             var searchRow=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3,RowCount=1,Height=42,Margin=new Padding(0,0,0,12)};
             searchRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));searchRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,110));searchRow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,110));
             _search.Dock=DockStyle.Fill;_search.Font=new Font("Segoe UI",12);_search.Margin=new Padding(0,0,8,0);
@@ -107,7 +107,7 @@ namespace MediBillingPro.Desktop.Forms
             var complete=new Button{Text="Complete bill",AutoSize=true,Height=38,BackColor=_green,ForeColor=Color.White,FlatStyle=FlatStyle.Flat};complete.Click+=(s,e)=>CompleteBill();
             var clear=new Button{Text="New / clear bill",AutoSize=true,Height=38};clear.Click+=(s,e)=>{_cart.Clear();_received.Value=0;UpdateTotals();};
             footer.Controls.Add(upi);footer.Controls.Add(complete);footer.Controls.Add(clear);footer.Controls.Add(_changeLabel);footer.Controls.Add(_balanceLabel);right.Controls.Add(footer,0,4);
-            _status.Dock=DockStyle.Bottom;_status.Height=28;_status.ForeColor=Color.FromArgb(91,111,101);_status.Text="Double-click an item to add it to the bill.";
+            _status.Dock=DockStyle.Bottom;_status.Height=28;_status.ForeColor=MediBillingTheme.Muted;_status.Text="Double-click an item to add it to the bill.";
             left.Controls.Add(_status,0,4);
             root.Controls.Add(left,0,0);root.Controls.Add(right,1,0);Controls.Add(root);
             UpdateTotals();
@@ -130,7 +130,7 @@ namespace MediBillingPro.Desktop.Forms
         private void StyleGrid(DataGridView g)
         {
             g.Dock=DockStyle.Fill;g.ReadOnly=false;g.AllowUserToAddRows=false;g.AllowUserToDeleteRows=false;g.AutoSizeColumnsMode=DataGridViewAutoSizeColumnsMode.Fill;g.SelectionMode=DataGridViewSelectionMode.FullRowSelect;g.MultiSelect=false;g.BackgroundColor=Color.White;g.BorderStyle=BorderStyle.None;g.RowHeadersVisible=false;g.AutoGenerateColumns=true;
-            g.EnableHeadersVisualStyles=false;g.ColumnHeadersDefaultCellStyle.BackColor=Color.FromArgb(231,246,239);g.ColumnHeadersDefaultCellStyle.ForeColor=_dark;g.ColumnHeadersDefaultCellStyle.Font=new Font("Segoe UI",9,FontStyle.Bold);g.RowTemplate.Height=30;
+            g.EnableHeadersVisualStyles=false;g.ColumnHeadersDefaultCellStyle.BackColor=MediBillingTheme.PrimaryLight;g.ColumnHeadersDefaultCellStyle.ForeColor=_dark;g.ColumnHeadersDefaultCellStyle.Font=new Font("Segoe UI",9,FontStyle.Bold);g.RowTemplate.Height=30;
         }
 
         private void LoadResults(string q)
