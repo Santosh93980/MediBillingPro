@@ -227,59 +227,320 @@ namespace MediBillingPro.Desktop.Forms
 
         private void BuildPurchaseEditor()
         {
-            using (var f = new Form { Text="New Purchase Entry", Width=850, Height=610, StartPosition=FormStartPosition.CenterParent, FormBorderStyle=FormBorderStyle.Sizable })
+            using (var f = new Form { Text = "Purchase Entry | MediBilling Pro", Width = 1120, Height = 760, MinimumSize = new Size(980, 650), StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.Sizable })
             {
-                var p=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(16),ColumnCount=4,RowCount=7}; for(int i=0;i<4;i++)p.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,25)); for(int i=0;i<6;i++)p.RowStyles.Add(new RowStyle(SizeType.Absolute,48)); p.RowStyles.Add(new RowStyle(SizeType.Percent,100));
-                _supplier=AddCombo(p,0,0,"Supplier", "SELECT SupplierId, SupplierName FROM dbo.Suppliers WHERE IsActive=1 ORDER BY SupplierName");
-                _medicine=AddCombo(p,0,2,"Medicine", "SELECT MedicineId, MedicineName FROM dbo.Medicines WHERE IsActive=1 ORDER BY MedicineName");
-                _batchNumber=AddText(p,1,0,"Batch number"); _expiry=AddDate(p,1,2,"Expiry date");
-                _quantity=AddNumber(p,2,0,"Quantity",1,100000); _freeQuantity=AddNumber(p,2,2,"Free qty",0,100000);
-                _purchasePrice=AddMoney(p,3,0,"Purchase price"); _sellingPrice=AddMoney(p,3,2,"Selling price"); _gst=AddMoney(p,4,0,"GST %"); _paid=AddMoney(p,4,2,"Amount paid");
-                var invoice=AddText(p,5,0,"Supplier invoice #"); var save=new Button{Text="Save Purchase",Dock=DockStyle.Fill,BackColor=_green,ForeColor=Color.White}; var cancel=new Button{Text="Cancel",Dock=DockStyle.Fill,DialogResult=DialogResult.Cancel}; p.Controls.Add(save,0,6);p.SetColumnSpan(save,2);p.Controls.Add(cancel,2,6);p.SetColumnSpan(cancel,2);f.Controls.Add(p);
-                save.Click+=(s,e)=>{try{
-                    if(_supplier.SelectedValue==null||_medicine.SelectedValue==null)throw new Exception("Select a supplier and medicine.");
-                    if(string.IsNullOrWhiteSpace(_batchNumber.Text))throw new Exception("Batch number is required.");
-                    decimal qty=_quantity.Value, buy=_purchasePrice.Value, gst=_gst.Value; decimal tax=Math.Round(qty*buy*gst/100m,2);
-                    var purchase=new MediBillingPro.Domain.Entities.Purchasing.Purchase{SupplierId=Convert.ToInt32(_supplier.SelectedValue),InvoiceNumber=invoice.Text.Trim(),PurchaseDate=DateTime.Today,DiscountAmount=0,AmountPaid=_paid.Value};
-                    var item=new MediBillingPro.Domain.Entities.Purchasing.PurchaseItem{MedicineId=Convert.ToInt32(_medicine.SelectedValue),BatchNumber=_batchNumber.Text.Trim(),ExpiryDate=_expiry.Value.Date,Quantity=(int)_quantity.Value,FreeQuantity=(int)_freeQuantity.Value,PurchasePrice=buy,SellingPrice=_sellingPrice.Value,GSTPercent=gst,TaxAmount=tax,LineTotal=qty*buy+tax};
-                    var factory=new MediBillingPro.Infrastructure.Data.DatabaseConnectionFactory(_connectionString);
-                    var service=new MediBillingPro.Application.Services.PurchaseService(new MediBillingPro.Infrastructure.Repositories.PurchaseRepository(factory));
-                    service.Create(purchase,new System.Collections.Generic.List<MediBillingPro.Domain.Entities.Purchasing.PurchaseItem>{item});
-                    MessageBox.Show("Purchase saved and batch stock updated.","Purchase",MessageBoxButtons.OK,MessageBoxIcon.Information);f.DialogResult=DialogResult.OK;f.Close();
-                }catch(Exception ex){MessageBox.Show(ex.Message,"Unable to save purchase",MessageBoxButtons.OK,MessageBoxIcon.Warning);}};
-                if(f.ShowDialog(this)==DialogResult.OK)LoadGrid();
+                var p = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(16), ColumnCount = 4, RowCount = 10, BackColor = _pageColor };
+                for (int i = 0; i < 4; i++) p.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+                for (int i = 0; i <= 5; i++) p.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+                p.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+                p.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
+                p.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+                p.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+
+                var supplier = AddCombo(p, 0, 0, "Supplier", "SELECT SupplierId, SupplierName FROM dbo.Suppliers WHERE IsActive=1 ORDER BY SupplierName");
+                var medicine = AddCombo(p, 0, 2, "Medicine", "SELECT MedicineId, MedicineName FROM dbo.Medicines WHERE IsActive=1 ORDER BY MedicineName");
+                var batchNo = AddText(p, 1, 0, "Batch number");
+                var expiry = AddDate(p, 1, 2, "Expiry date");
+                var qty = AddNumber(p, 2, 0, "Quantity", 1, 100000);
+                var freeQty = AddNumber(p, 2, 2, "Free qty", 0, 100000);
+                var buyPrice = AddMoney(p, 3, 0, "Purchase price");
+                var sellPrice = AddMoney(p, 3, 2, "Selling price");
+                var gst = AddMoney(p, 4, 0, "GST %");
+                var supplierInvoice = AddText(p, 4, 2, "Supplier invoice #");
+
+                var cart = new DataTable();
+                cart.Columns.Add("MedicineId", typeof(int));
+                cart.Columns.Add("Medicine", typeof(string));
+                cart.Columns.Add("BatchNumber", typeof(string));
+                cart.Columns.Add("ExpiryDate", typeof(DateTime));
+                cart.Columns.Add("Quantity", typeof(int));
+                cart.Columns.Add("FreeQuantity", typeof(int));
+                cart.Columns.Add("PurchasePrice", typeof(decimal));
+                cart.Columns.Add("SellingPrice", typeof(decimal));
+                cart.Columns.Add("GSTPercent", typeof(decimal));
+                cart.Columns.Add("TaxAmount", typeof(decimal));
+                cart.Columns.Add("LineTotal", typeof(decimal));
+
+                var addItem = new Button { Text = "+ Add medicine to purchase", Dock = DockStyle.Fill, BackColor = _green, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
+                p.Controls.Add(addItem, 0, 5); p.SetColumnSpan(addItem, 4);
+
+                var cartGrid = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoGenerateColumns = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, RowHeadersVisible = false };
+                cartGrid.DataSource = cart;
+                cartGrid.Columns["MedicineId"].Visible = false;
+                p.Controls.Add(cartGrid, 0, 6); p.SetColumnSpan(cartGrid, 4);
+
+                var summary = new Label { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleRight, ForeColor = _dark, Font = new Font("Segoe UI", 10F, FontStyle.Bold), Text = "Subtotal: ₹0.00    GST: ₹0.00    Discount: ₹0.00    Total: ₹0.00" };
+                p.Controls.Add(summary, 0, 7); p.SetColumnSpan(summary, 4);
+
+                var discount = AddMoney(p, 8, 0, "Bill discount");
+                var paid = AddMoney(p, 8, 2, "Amount paid");
+                var save = new Button { Text = "Save Purchase", Dock = DockStyle.Fill, BackColor = _green, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
+                var cancel = new Button { Text = "Cancel", Dock = DockStyle.Fill, DialogResult = DialogResult.Cancel };
+                p.Controls.Add(save, 0, 9); p.SetColumnSpan(save, 2); p.Controls.Add(cancel, 2, 9); p.SetColumnSpan(cancel, 2);
+                f.Controls.Add(p);
+
+                Action updateSummary = () =>
+                {
+                    decimal sub = cart.Rows.Cast<DataRow>().Sum(r => Convert.ToDecimal(r["PurchasePrice"]) * Convert.ToInt32(r["Quantity"]));
+                    decimal tax = cart.Rows.Cast<DataRow>().Sum(r => Convert.ToDecimal(r["TaxAmount"]));
+                    decimal disc = discount.Value;
+                    decimal total = Math.Max(0m, sub - disc + tax);
+                    summary.Text = "Subtotal: " + sub.ToString("C2") + "    GST: " + tax.ToString("C2") + "    Discount: " + disc.ToString("C2") + "    Total: " + total.ToString("C2") + "    Due: " + Math.Max(0m, total - paid.Value).ToString("C2");
+                };
+                cart.RowChanged += (s, e) => updateSummary();
+                cart.RowDeleted += (s, e) => updateSummary();
+                discount.ValueChanged += (s, e) => updateSummary();
+                paid.ValueChanged += (s, e) => updateSummary();
+
+                addItem.Click += (s, e) =>
+                {
+                    if (supplier.SelectedValue == null || medicine.SelectedValue == null) { MessageBox.Show("Select a supplier and medicine first."); return; }
+                    if (string.IsNullOrWhiteSpace(batchNo.Text)) { MessageBox.Show("Batch number is required."); return; }
+                    if (expiry.Value.Date <= DateTime.Today) { MessageBox.Show("Expiry date must be in the future."); return; }
+                    decimal lineBase = qty.Value * buyPrice.Value;
+                    decimal lineTax = Math.Round(lineBase * gst.Value / 100m, 2);
+                    cart.Rows.Add(Convert.ToInt32(medicine.SelectedValue), Convert.ToString(medicine.Text), batchNo.Text.Trim(), expiry.Value.Date, (int)qty.Value, (int)freeQty.Value, buyPrice.Value, sellPrice.Value, gst.Value, lineTax, lineBase + lineTax);
+                    batchNo.Clear();
+                    qty.Value = 1; freeQty.Value = 0;
+                    updateSummary();
+                };
+
+                var removeItem = new Button { Text = "Remove selected item", Dock = DockStyle.Bottom, Height = 32, BackColor = Color.White, ForeColor = _dark, FlatStyle = FlatStyle.Flat };
+                // Place removal action above the grid as a small secondary action.
+                removeItem.Click += (s, e) => { if (cartGrid.CurrentRow != null && cartGrid.CurrentRow.Index >= 0) cart.Rows.RemoveAt(cartGrid.CurrentRow.Index); updateSummary(); };
+                p.Controls.Add(removeItem, 0, 5); p.SetColumnSpan(removeItem, 1);
+                addItem.BringToFront();
+
+                save.Click += (s, e) =>
+                {
+                    try
+                    {
+                        if (supplier.SelectedValue == null) throw new Exception("Select a supplier.");
+                        if (cart.Rows.Count == 0) throw new Exception("Add at least one medicine to the purchase.");
+                        decimal sub = cart.Rows.Cast<DataRow>().Sum(r => Convert.ToDecimal(r["PurchasePrice"]) * Convert.ToInt32(r["Quantity"]));
+                        decimal tax = cart.Rows.Cast<DataRow>().Sum(r => Convert.ToDecimal(r["TaxAmount"]));
+                        decimal total = Math.Max(0m, sub - discount.Value + tax);
+                        if (discount.Value > sub) throw new Exception("Bill discount cannot exceed the subtotal.");
+                        if (paid.Value > total) throw new Exception("Amount paid cannot exceed the purchase total.");
+
+                        var purchase = new MediBillingPro.Domain.Entities.Purchasing.Purchase
+                        {
+                            SupplierId = Convert.ToInt32(supplier.SelectedValue),
+                            InvoiceNumber = supplierInvoice.Text.Trim(),
+                            PurchaseDate = DateTime.Today,
+                            DiscountAmount = discount.Value,
+                            AmountPaid = paid.Value
+                        };
+                        var items = new System.Collections.Generic.List<MediBillingPro.Domain.Entities.Purchasing.PurchaseItem>();
+                        foreach (DataRow r in cart.Rows)
+                        {
+                            items.Add(new MediBillingPro.Domain.Entities.Purchasing.PurchaseItem
+                            {
+                                MedicineId = Convert.ToInt32(r["MedicineId"]),
+                                BatchNumber = Convert.ToString(r["BatchNumber"]),
+                                ExpiryDate = Convert.ToDateTime(r["ExpiryDate"]),
+                                Quantity = Convert.ToInt32(r["Quantity"]),
+                                FreeQuantity = Convert.ToInt32(r["FreeQuantity"]),
+                                PurchasePrice = Convert.ToDecimal(r["PurchasePrice"]),
+                                SellingPrice = Convert.ToDecimal(r["SellingPrice"]),
+                                GSTPercent = Convert.ToDecimal(r["GSTPercent"]),
+                                TaxAmount = Convert.ToDecimal(r["TaxAmount"]),
+                                LineTotal = Convert.ToDecimal(r["LineTotal"])
+                            });
+                        }
+                        var factory = new MediBillingPro.Infrastructure.Data.DatabaseConnectionFactory(_connectionString);
+                        var service = new MediBillingPro.Application.Services.PurchaseService(new MediBillingPro.Infrastructure.Repositories.PurchaseRepository(factory));
+                        service.Create(purchase, items);
+                        MessageBox.Show("Purchase saved successfully.\nTotal: " + total.ToString("C2") + "\nStock has been updated.", "Purchase saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        f.DialogResult = DialogResult.OK;
+                        f.Close();
+                    }
+                    catch (Exception ex) { MessageBox.Show(ex.Message, "Unable to save purchase", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+                };
+                updateSummary();
+                if (f.ShowDialog(this) == DialogResult.OK) LoadGrid();
             }
         }
 
         private void BuildSaleEditor()
         {
-            using(var f=new Form{Text="New Sale / Billing",Width=700,Height=390,StartPosition=FormStartPosition.CenterParent,FormBorderStyle=FormBorderStyle.FixedDialog})
+            using (var f = new Form { Text = "Sales & Billing | Point of Sale", Width = 1120, Height = 760, MinimumSize = new Size(980, 650), StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.Sizable })
             {
-                var p=new TableLayoutPanel{Dock=DockStyle.Fill,Padding=new Padding(18),ColumnCount=2,RowCount=5};p.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,150));p.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
-                var cust=new ComboBox{Dock=DockStyle.Fill,DropDownStyle=ComboBoxStyle.DropDownList,DisplayMember="CustomerName",ValueMember="CustomerId"};p.Controls.Add(new Label{Text="Customer (optional)",Dock=DockStyle.Fill,TextAlign=ContentAlignment.MiddleLeft},0,0);p.Controls.Add(cust,1,0);
-                var batch=new ComboBox{Dock=DockStyle.Fill,DropDownStyle=ComboBoxStyle.DropDownList,DisplayMember="BatchLabel",ValueMember="BatchId"};p.Controls.Add(new Label{Text="Medicine batch",Dock=DockStyle.Fill,TextAlign=ContentAlignment.MiddleLeft},0,1);p.Controls.Add(batch,1,1);
-                var qty=new NumericUpDown{Minimum=1,Maximum=100000,Value=1,Dock=DockStyle.Left};p.Controls.Add(new Label{Text="Quantity",Dock=DockStyle.Fill,TextAlign=ContentAlignment.MiddleLeft},0,2);p.Controls.Add(qty,1,2);
-                var paid=new NumericUpDown{Minimum=0,Maximum=100000000,DecimalPlaces=2,Increment=10,Dock=DockStyle.Left,Width=180};p.Controls.Add(new Label{Text="Amount received",Dock=DockStyle.Fill,TextAlign=ContentAlignment.MiddleLeft},0,3);p.Controls.Add(paid,1,3);
-                using(var cn=OpenConnection()){var dt=new DataTable();using(var da=new SqlDataAdapter("SELECT CustomerId,CustomerName FROM dbo.Customers ORDER BY CustomerName",cn))da.Fill(dt);var walk=dt.NewRow();walk["CustomerId"]=DBNull.Value;walk["CustomerName"]="Walk-in customer";dt.Rows.InsertAt(walk,0);cust.DataSource=dt;
-                    var bt=new DataTable();using(var da=new SqlDataAdapter("SELECT b.BatchId, CAST(m.MedicineName AS NVARCHAR(150))+' | '+b.BatchNumber+' | stock '+CAST(b.QuantityOnHand AS NVARCHAR(20)) AS BatchLabel,b.SellingPrice,b.GSTPercent,b.QuantityOnHand FROM dbo.MedicineBatches b INNER JOIN dbo.Medicines m ON m.MedicineId=b.MedicineId WHERE b.QuantityOnHand>0 AND b.ExpiryDate>CONVERT(date,GETDATE()) ORDER BY m.MedicineName,b.ExpiryDate",cn))da.Fill(bt);batch.DataSource=bt;}
-                var save=new Button{Text="Complete Sale",Dock=DockStyle.Fill,BackColor=_green,ForeColor=Color.White};var cancel=new Button{Text="Cancel",Dock=DockStyle.Fill,DialogResult=DialogResult.Cancel};p.Controls.Add(save,0,4);p.Controls.Add(cancel,1,4);f.Controls.Add(p);
-                save.Click+=(s,e)=>{try{
-                    if(batch.SelectedValue==null)throw new Exception("No in-stock, unexpired batch is available.");
-                    var selected=(DataRowView)batch.SelectedItem;int batchId=Convert.ToInt32(selected["BatchId"]);int count=(int)qty.Value;int stock=Convert.ToInt32(selected["QuantityOnHand"]);if(count>stock)throw new Exception("Quantity exceeds available stock.");
-                    decimal price=Convert.ToDecimal(selected["SellingPrice"]), gst=Convert.ToDecimal(selected["GSTPercent"]);decimal sub=price*count;decimal tax=Math.Round(sub*gst/100m,2);decimal total=sub+tax;decimal received=paid.Value;if(received>total)throw new Exception("Amount received cannot exceed total.");
-                    using(var cn=OpenConnection())using(var tx=cn.BeginTransaction()){
-                        try{
-                            int? customerId=cust.SelectedIndex<=0?(int?)null:Convert.ToInt32(cust.SelectedValue);
-                            string no="INV-"+DateTime.Now.ToString("yyyyMMddHHmmssfff");
-                            int invoiceId;using(var cmd=new SqlCommand(@"INSERT dbo.Invoices(InvoiceNumber,CustomerId,InvoiceDate,SubTotal,DiscountAmount,TaxAmount,RoundOff,TotalAmount,AmountPaid,BalanceAmount,PaymentStatus,InvoiceStatus,CreatedAt) VALUES(@n,@c,SYSDATETIME(),@s,0,@t,0,@total,@paid,@balance,@status,'Completed',SYSDATETIME());SELECT CAST(SCOPE_IDENTITY() AS INT)",cn,tx)){
-                                cmd.Parameters.AddWithValue("@n",no);cmd.Parameters.Add("@c",SqlDbType.Int).Value=(object)customerId??DBNull.Value;cmd.Parameters.AddWithValue("@s",sub);cmd.Parameters.AddWithValue("@t",tax);cmd.Parameters.AddWithValue("@total",total);cmd.Parameters.AddWithValue("@paid",received);cmd.Parameters.AddWithValue("@balance",total-received);cmd.Parameters.AddWithValue("@status",received==0?"Unpaid":received>=total?"Paid":"Partial");invoiceId=Convert.ToInt32(cmd.ExecuteScalar());}
-                            using(var cmd=new SqlCommand(@"INSERT dbo.InvoiceItems(InvoiceId,MedicineId,BatchId,Quantity,UnitPrice,DiscountAmount,GSTPercent,TaxAmount,LineTotal) SELECT @id,MedicineId,BatchId,@qty,@price,0,@gst,@tax,@total FROM dbo.MedicineBatches WHERE BatchId=@batch; UPDATE dbo.MedicineBatches SET QuantityOnHand=QuantityOnHand-@qty WHERE BatchId=@batch AND QuantityOnHand>=@qty; IF @@ROWCOUNT=0 THROW 50001,'Insufficient stock.',1;",cn,tx)){
-                                cmd.Parameters.AddWithValue("@id",invoiceId);cmd.Parameters.AddWithValue("@qty",count);cmd.Parameters.AddWithValue("@price",price);cmd.Parameters.AddWithValue("@gst",gst);cmd.Parameters.AddWithValue("@tax",tax);cmd.Parameters.AddWithValue("@total",total);cmd.Parameters.AddWithValue("@batch",batchId);cmd.ExecuteNonQuery();}
-                            tx.Commit();MessageBox.Show("Invoice "+no+" saved. Total: "+total.ToString("C2"),"Sale complete",MessageBoxButtons.OK,MessageBoxIcon.Information);f.DialogResult=DialogResult.OK;f.Close();
-                        }catch{tx.Rollback();throw;}
+                var p = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(16), ColumnCount = 4, RowCount = 8, BackColor = _pageColor };
+                for (int i = 0; i < 4; i++) p.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+                p.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+                p.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+                p.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+                p.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
+                p.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+                p.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
+                p.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+                p.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+
+                var customer = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, DisplayMember = "CustomerName", ValueMember = "CustomerId" };
+                p.Controls.Add(new Label { Text = "Customer", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft }, 0, 0);
+                p.Controls.Add(customer, 1, 0);
+                var batch = new ComboBox { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, DisplayMember = "BatchLabel", ValueMember = "BatchId" };
+                p.Controls.Add(new Label { Text = "Medicine / batch", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft }, 2, 0);
+                p.Controls.Add(batch, 3, 0);
+
+                var qty = AddNumber(p, 1, 0, "Quantity", 1, 100000);
+                var lineDiscount = AddMoney(p, 1, 2, "Line discount");
+                var add = new Button { Text = "+ Add to bill", Dock = DockStyle.Fill, BackColor = _green, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold) };
+                p.Controls.Add(add, 0, 2); p.SetColumnSpan(add, 2);
+                var remove = new Button { Text = "Remove selected line", Dock = DockStyle.Fill, BackColor = Color.White, ForeColor = _dark, FlatStyle = FlatStyle.Flat };
+                p.Controls.Add(remove, 2, 2); p.SetColumnSpan(remove, 2);
+
+                var cart = new DataTable();
+                cart.Columns.Add("BatchId", typeof(int));
+                cart.Columns.Add("MedicineId", typeof(int));
+                cart.Columns.Add("Medicine", typeof(string));
+                cart.Columns.Add("Batch", typeof(string));
+                cart.Columns.Add("Quantity", typeof(int));
+                cart.Columns.Add("StockAvailable", typeof(int));
+                cart.Columns.Add("UnitPrice", typeof(decimal));
+                cart.Columns.Add("GSTPercent", typeof(decimal));
+                cart.Columns.Add("DiscountAmount", typeof(decimal));
+                cart.Columns.Add("TaxAmount", typeof(decimal));
+                cart.Columns.Add("LineTotal", typeof(decimal));
+
+                var cartGrid = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoGenerateColumns = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, RowHeadersVisible = false };
+                cartGrid.DataSource = cart;
+                cartGrid.Columns["BatchId"].Visible = false;
+                cartGrid.Columns["MedicineId"].Visible = false;
+                cartGrid.Columns["StockAvailable"].Visible = false;
+                p.Controls.Add(cartGrid, 0, 4); p.SetColumnSpan(cartGrid, 4);
+
+                var summary = new Label { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleRight, ForeColor = _dark, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
+                p.Controls.Add(summary, 0, 5); p.SetColumnSpan(summary, 4);
+                var paid = AddMoney(p, 6, 0, "Cash received");
+                var totalsHelp = new Label { Text = "Total and balance update automatically", Dock = DockStyle.Fill, ForeColor = _dark, TextAlign = ContentAlignment.MiddleCenter };
+                p.Controls.Add(totalsHelp, 2, 6); p.SetColumnSpan(totalsHelp, 2);
+                var complete = new Button { Text = "Complete Sale / Save Invoice", Dock = DockStyle.Fill, BackColor = _green, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
+                var cancel = new Button { Text = "Cancel", Dock = DockStyle.Fill, DialogResult = DialogResult.Cancel };
+                p.Controls.Add(complete, 0, 7); p.SetColumnSpan(complete, 2); p.Controls.Add(cancel, 2, 7); p.SetColumnSpan(cancel, 2);
+                f.Controls.Add(p);
+
+                using (var cn = OpenConnection())
+                {
+                    var customers = new DataTable();
+                    customers.Columns.Add("CustomerId", typeof(int));
+                    customers.Columns["CustomerId"].AllowDBNull = true;
+                    customers.Columns.Add("CustomerName", typeof(string));
+                    using (var da = new SqlDataAdapter("SELECT CustomerId, CustomerName FROM dbo.Customers ORDER BY CustomerName", cn)) da.Fill(customers);
+                    var walk = customers.NewRow(); walk["CustomerId"] = DBNull.Value; walk["CustomerName"] = "Walk-in customer"; customers.Rows.InsertAt(walk, 0);
+                    customer.DataSource = customers;
+
+                    var batches = new DataTable();
+                    using (var da = new SqlDataAdapter(@"SELECT b.BatchId, b.MedicineId, m.MedicineName, b.BatchNumber, b.SellingPrice, b.GSTPercent, b.QuantityOnHand, b.ExpiryDate,
+CAST(m.MedicineName AS NVARCHAR(150))+' | Batch '+b.BatchNumber+' | Stock '+CAST(b.QuantityOnHand AS NVARCHAR(20))+' | Exp '+CONVERT(NVARCHAR(10),b.ExpiryDate,103) AS BatchLabel
+FROM dbo.MedicineBatches b INNER JOIN dbo.Medicines m ON m.MedicineId=b.MedicineId
+WHERE b.QuantityOnHand>0 AND b.ExpiryDate>CONVERT(date,GETDATE()) ORDER BY m.MedicineName,b.ExpiryDate", cn)) da.Fill(batches);
+                    batch.DataSource = batches;
+                }
+
+                Action updateSummary = () =>
+                {
+                    decimal sub = cart.Rows.Cast<DataRow>().Sum(r => Convert.ToDecimal(r["UnitPrice"]) * Convert.ToInt32(r["Quantity"]));
+                    decimal discountTotal = cart.Rows.Cast<DataRow>().Sum(r => Convert.ToDecimal(r["DiscountAmount"]));
+                    decimal tax = cart.Rows.Cast<DataRow>().Sum(r => Convert.ToDecimal(r["TaxAmount"]));
+                    decimal total = Math.Max(0m, sub - discountTotal + tax);
+                    decimal tender = paid.Value;
+                    decimal received = Math.Min(tender, total);
+                    decimal change = Math.Max(0m, tender - total);
+                    summary.Text = "Subtotal: " + sub.ToString("C2") + "    Discount: " + discountTotal.ToString("C2") + "    GST: " + tax.ToString("C2") + "    TOTAL: " + total.ToString("C2") + "    Due: " + Math.Max(0m, total - received).ToString("C2") + "    Change: " + change.ToString("C2");
+                };
+                cart.RowChanged += (s, e) => updateSummary();
+                cart.RowDeleted += (s, e) => updateSummary();
+                paid.ValueChanged += (s, e) => updateSummary();
+
+                add.Click += (s, e) =>
+                {
+                    if (batch.SelectedItem == null) { MessageBox.Show("No in-stock, unexpired batch is available."); return; }
+                    var selected = (DataRowView)batch.SelectedItem;
+                    int batchId = Convert.ToInt32(selected["BatchId"]);
+                    int stock = Convert.ToInt32(selected["QuantityOnHand"]);
+                    int count = (int)qty.Value;
+                    if (count > stock) { MessageBox.Show("Quantity exceeds available stock."); return; }
+                    decimal price = Convert.ToDecimal(selected["SellingPrice"]);
+                    decimal gst = Convert.ToDecimal(selected["GSTPercent"]);
+                    decimal baseAmount = price * count;
+                    if (lineDiscount.Value > baseAmount) { MessageBox.Show("Line discount cannot exceed line subtotal."); return; }
+                    decimal tax = Math.Round((baseAmount - lineDiscount.Value) * gst / 100m, 2);
+                    decimal total = baseAmount - lineDiscount.Value + tax;
+                    DataRow existing = cart.Rows.Cast<DataRow>().FirstOrDefault(r => Convert.ToInt32(r["BatchId"]) == batchId);
+                    if (existing != null)
+                    {
+                        int newQty = Convert.ToInt32(existing["Quantity"]) + count;
+                        if (newQty > stock) { MessageBox.Show("Combined quantity exceeds available stock."); return; }
+                        decimal newBase = price * newQty;
+                        decimal newDiscount = Convert.ToDecimal(existing["DiscountAmount"]) + lineDiscount.Value;
+                        if (newDiscount > newBase) { MessageBox.Show("Combined discount cannot exceed line subtotal."); return; }
+                        decimal newTax = Math.Round((newBase - newDiscount) * gst / 100m, 2);
+                        existing["Quantity"] = newQty; existing["DiscountAmount"] = newDiscount; existing["TaxAmount"] = newTax; existing["LineTotal"] = newBase - newDiscount + newTax;
                     }
-                }catch(Exception ex){MessageBox.Show(ex.Message,"Unable to complete sale",MessageBoxButtons.OK,MessageBoxIcon.Warning);}};
-                if(f.ShowDialog(this)==DialogResult.OK)LoadGrid();
+                    else
+                    {
+                        cart.Rows.Add(batchId, Convert.ToInt32(selected["MedicineId"]), Convert.ToString(selected["MedicineName"]), Convert.ToString(selected["BatchNumber"]), count, stock, price, gst, lineDiscount.Value, tax, total);
+                    }
+                    qty.Value = 1; lineDiscount.Value = 0;
+                    updateSummary();
+                };
+                remove.Click += (s, e) => { if (cartGrid.CurrentRow != null && cartGrid.CurrentRow.Index >= 0) cart.Rows.RemoveAt(cartGrid.CurrentRow.Index); updateSummary(); };
+
+                complete.Click += (s, e) =>
+                {
+                    try
+                    {
+                        if (cart.Rows.Count == 0) throw new Exception("Add at least one medicine to the bill.");
+                        decimal sub = cart.Rows.Cast<DataRow>().Sum(r => Convert.ToDecimal(r["UnitPrice"]) * Convert.ToInt32(r["Quantity"]));
+                        decimal discountTotal = cart.Rows.Cast<DataRow>().Sum(r => Convert.ToDecimal(r["DiscountAmount"]));
+                        decimal tax = cart.Rows.Cast<DataRow>().Sum(r => Convert.ToDecimal(r["TaxAmount"]));
+                        decimal total = Math.Max(0m, sub - discountTotal + tax);
+                        decimal received = Math.Min(paid.Value, total);
+                        using (var cn = OpenConnection())
+                        using (var tx = cn.BeginTransaction())
+                        {
+                            try
+                            {
+                                int? customerId = customer.SelectedIndex <= 0 || customer.SelectedValue == DBNull.Value ? (int?)null : Convert.ToInt32(customer.SelectedValue);
+                                string no = "INV-" + DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                                int invoiceId;
+                                using (var cmd = new SqlCommand(@"INSERT dbo.Invoices(InvoiceNumber,CustomerId,InvoiceDate,SubTotal,DiscountAmount,TaxAmount,RoundOff,TotalAmount,AmountPaid,BalanceAmount,PaymentStatus,InvoiceStatus,CreatedAt)
+VALUES(@n,@c,SYSDATETIME(),@s,@d,@t,0,@total,@paid,@balance,@status,'Completed',SYSDATETIME()); SELECT CAST(SCOPE_IDENTITY() AS INT)", cn, tx))
+                                {
+                                    cmd.Parameters.AddWithValue("@n", no);
+                                    cmd.Parameters.Add("@c", SqlDbType.Int).Value = (object)customerId ?? DBNull.Value;
+                                    cmd.Parameters.AddWithValue("@s", sub); cmd.Parameters.AddWithValue("@d", discountTotal); cmd.Parameters.AddWithValue("@t", tax);
+                                    cmd.Parameters.AddWithValue("@total", total); cmd.Parameters.AddWithValue("@paid", received); cmd.Parameters.AddWithValue("@balance", total - received);
+                                    cmd.Parameters.AddWithValue("@status", received == 0 ? "Unpaid" : received >= total ? "Paid" : "Partial");
+                                    invoiceId = Convert.ToInt32(cmd.ExecuteScalar());
+                                }
+                                foreach (DataRow r in cart.Rows)
+                                {
+                                    using (var cmd = new SqlCommand(@"INSERT dbo.InvoiceItems(InvoiceId,MedicineId,BatchId,Quantity,UnitPrice,DiscountAmount,GSTPercent,TaxAmount,LineTotal)
+VALUES(@id,@medicine,@batch,@qty,@price,@discount,@gst,@tax,@lineTotal);
+UPDATE dbo.MedicineBatches SET QuantityOnHand=QuantityOnHand-@qty WHERE BatchId=@batch AND QuantityOnHand>=@qty;
+IF @@ROWCOUNT=0 THROW 50001,'Insufficient stock. Refresh the batch list and try again.',1;", cn, tx))
+                                    {
+                                        cmd.Parameters.AddWithValue("@id", invoiceId); cmd.Parameters.AddWithValue("@medicine", Convert.ToInt32(r["MedicineId"]));
+                                        cmd.Parameters.AddWithValue("@batch", Convert.ToInt32(r["BatchId"])); cmd.Parameters.AddWithValue("@qty", Convert.ToInt32(r["Quantity"]));
+                                        cmd.Parameters.AddWithValue("@price", Convert.ToDecimal(r["UnitPrice"])); cmd.Parameters.AddWithValue("@discount", Convert.ToDecimal(r["DiscountAmount"]));
+                                        cmd.Parameters.AddWithValue("@gst", Convert.ToDecimal(r["GSTPercent"])); cmd.Parameters.AddWithValue("@tax", Convert.ToDecimal(r["TaxAmount"]));
+                                        cmd.Parameters.AddWithValue("@lineTotal", Convert.ToDecimal(r["LineTotal"])); cmd.ExecuteNonQuery();
+                                    }
+                                }
+                                tx.Commit();
+                                MessageBox.Show("Invoice " + no + " saved.\nTotal: " + total.ToString("C2") + "\nBalance due: " + (total - received).ToString("C2"), "Sale complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                f.DialogResult = DialogResult.OK; f.Close();
+                            }
+                            catch { tx.Rollback(); throw; }
+                        }
+                    }
+                    catch (Exception ex) { MessageBox.Show(ex.Message, "Unable to complete sale", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+                };
+                updateSummary();
+                if (f.ShowDialog(this) == DialogResult.OK) LoadGrid();
             }
         }
 
