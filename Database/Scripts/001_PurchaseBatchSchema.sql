@@ -13,11 +13,11 @@ BEGIN
         PurchasePrice DECIMAL(18,2) NOT NULL CONSTRAINT DF_MedicineBatches_PurchasePrice DEFAULT (0),
         SellingPrice DECIMAL(18,2) NOT NULL CONSTRAINT DF_MedicineBatches_SellingPrice DEFAULT (0),
         GSTPercent DECIMAL(5,2) NOT NULL CONSTRAINT DF_MedicineBatches_GSTPercent DEFAULT (0),
-        Quantity INT NOT NULL CONSTRAINT DF_MedicineBatches_Quantity DEFAULT (0),
-        FreeQuantity INT NOT NULL CONSTRAINT DF_MedicineBatches_FreeQuantity DEFAULT (0),
+        QuantityOnHand INT NOT NULL CONSTRAINT DF_MedicineBatches_QuantityOnHand DEFAULT (0),
         CreatedAt DATETIME2 NOT NULL CONSTRAINT DF_MedicineBatches_CreatedAt DEFAULT (SYSDATETIME()),
         CONSTRAINT FK_MedicineBatches_Medicines FOREIGN KEY (MedicineId) REFERENCES dbo.Medicines(MedicineId),
-        CONSTRAINT UQ_MedicineBatches_Medicine_Batch_Expiry UNIQUE (MedicineId, BatchNumber, ExpiryDate)
+        CONSTRAINT UQ_MedicineBatches_Medicine_Batch_Expiry UNIQUE (MedicineId, BatchNumber, ExpiryDate),
+        CONSTRAINT CK_MedicineBatches_QuantityOnHand CHECK (QuantityOnHand >= 0)
     );
     CREATE INDEX IX_MedicineBatches_Medicine_Expiry ON dbo.MedicineBatches(MedicineId, ExpiryDate);
 END;
@@ -38,7 +38,7 @@ BEGIN
         AmountPaid DECIMAL(18,2) NOT NULL CONSTRAINT DF_Purchases_AmountPaid DEFAULT (0),
         Status NVARCHAR(30) NOT NULL CONSTRAINT DF_Purchases_Status DEFAULT ('Unpaid'),
         Notes NVARCHAR(1000) NULL,
-        CreatedBy NVARCHAR(100) NULL,
+        CreatedBy INT NULL,
         CreatedAt DATETIME2 NOT NULL CONSTRAINT DF_Purchases_CreatedAt DEFAULT (SYSDATETIME()),
         CONSTRAINT UQ_Purchases_PurchaseNumber UNIQUE (PurchaseNumber),
         CONSTRAINT FK_Purchases_Suppliers FOREIGN KEY (SupplierId) REFERENCES dbo.Suppliers(SupplierId)
