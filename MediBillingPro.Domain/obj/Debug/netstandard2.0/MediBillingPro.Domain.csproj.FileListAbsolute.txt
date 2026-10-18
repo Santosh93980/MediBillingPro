@@ -8,3 +8,13 @@ C:\Projects\MediBillingPro\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBi
 C:\Projects\MediBillingPro\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.dll
 C:\Projects\MediBillingPro\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.pdb
 C:\Projects\MediBillingPro\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.csproj.AssemblyReference.cache
+C:\Users\palak\Source\Repos\MediBillingProV1\MediBillingPro.Domain\bin\Debug\netstandard2.0\MediBillingPro.Domain.deps.json
+C:\Users\palak\Source\Repos\MediBillingProV1\MediBillingPro.Domain\bin\Debug\netstandard2.0\MediBillingPro.Domain.dll
+C:\Users\palak\Source\Repos\MediBillingProV1\MediBillingPro.Domain\bin\Debug\netstandard2.0\MediBillingPro.Domain.pdb
+C:\Users\palak\Source\Repos\MediBillingProV1\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.csproj.AssemblyReference.cache
+C:\Users\palak\Source\Repos\MediBillingProV1\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\palak\Source\Repos\MediBillingProV1\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.AssemblyInfoInputs.cache
+C:\Users\palak\Source\Repos\MediBillingProV1\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.AssemblyInfo.cs
+C:\Users\palak\Source\Repos\MediBillingProV1\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.csproj.CoreCompileInputs.cache
+C:\Users\palak\Source\Repos\MediBillingProV1\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.dll
+C:\Users\palak\Source\Repos\MediBillingProV1\MediBillingPro.Domain\obj\Debug\netstandard2.0\MediBillingPro.Domain.pdb

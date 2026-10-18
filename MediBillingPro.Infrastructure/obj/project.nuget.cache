@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "OZfwXHIuIKtWYGXlNSACgdUBTXuZDbPVu2uXB57rnlEbA9/3bTZlBpz1HcX7Yw+LX+QiIgyTy7l0OpGcWjPE9w==",
+  "dgSpecHash": "K2jHYY764izxXlZ1rhbMetZkoFGWvxtLWI8zsTPjvnx4kzUgIPKl9jnWj3SxlQxIXyV+j/rP8weKzwSO16edpg==",
   "success": true,
-  "projectFilePath": "C:\\Projects\\MediBilling\\MediBillingPro.Infrastructure\\MediBillingPro.Infrastructure.csproj",
+  "projectFilePath": "C:\\Users\\palak\\Source\\Repos\\MediBillingProV1\\MediBillingPro.Infrastructure\\MediBillingPro.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\palak\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "C:\\Users\\palak\\.nuget\\packages\\microsoft.win32.registry\\4.7.0\\microsoft.win32.registry.4.7.0.nupkg.sha512",
