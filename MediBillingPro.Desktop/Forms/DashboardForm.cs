@@ -9,17 +9,18 @@ namespace MediBillingPro.Desktop.Forms
 {
     public partial class DashboardForm : Form
     {
-        private static readonly Color Green = Color.FromArgb(8, 127, 91);
-        private static readonly Color DarkGreen = Color.FromArgb(21, 60, 49);
-        private static readonly Color Page = Color.FromArgb(244, 248, 246);
-        private static readonly Color Muted = Color.FromArgb(91, 111, 101);
-        private static readonly Color LightGreen = Color.FromArgb(231, 246, 239);
+        private static readonly Color Green = MediBillingTheme.Primary;
+        private static readonly Color DarkGreen = MediBillingTheme.Secondary;
+        private static readonly Color Page = MediBillingTheme.Page;
+        private static readonly Color Muted = MediBillingTheme.Muted;
+        private static readonly Color LightGreen = MediBillingTheme.PrimaryLight;
 
         private readonly Dictionary<string, Button> _navigation = new Dictionary<string, Button>();
         private Panel _sidebar;
         private Panel _contentHost;
         private FlowLayoutPanel _navigationHost;
         private Button _collapseButton;
+        private Button _logoutButton;
         private Label _brandTitle;
         private Label _brandSubtitle;
         private Label _sidebarFooter;
@@ -27,6 +28,7 @@ namespace MediBillingPro.Desktop.Forms
         private Form _activeChild;
         private string _activePage = "Dashboard";
         private readonly UserSession _session;
+        public bool WasLogoutRequested { get; private set; }
 
         public DashboardForm() : this(null) { }
 
@@ -150,6 +152,19 @@ namespace MediBillingPro.Desktop.Forms
                 AddNavigation("Reports", "▥", () => OpenModule(new OperationsForm("Reports"), "Reports"));
             }
 
+            _logoutButton = CreateNavigationButton("⇥   Logout");
+            _logoutButton.Dock = DockStyle.Bottom;
+            _logoutButton.Height = 44;
+            _logoutButton.BackColor = MediBillingTheme.Danger;
+            _logoutButton.FlatAppearance.MouseOverBackColor = MediBillingTheme.DangerHover;
+            _logoutButton.Click += (s, e) =>
+            {
+                if (MessageBox.Show("Are you sure you want to log out?", "Confirm logout",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+                WasLogoutRequested = true;
+                Close();
+            };
+
             _sidebarFooter = new Label
             {
                 Text = _session == null ? "Secure • Simple • Reliable" : _session.DisplayName + " • " + _session.Role,
@@ -163,6 +178,7 @@ namespace MediBillingPro.Desktop.Forms
             _sidebar.Controls.Add(_navigationHost);
             _sidebar.Controls.Add(_collapseButton);
             _sidebar.Controls.Add(brand);
+            _sidebar.Controls.Add(_logoutButton);
             _sidebar.Controls.Add(_sidebarFooter);
 
             // Reserve column 0 for the sidebar and column 1 for the page body.
@@ -270,6 +286,13 @@ namespace MediBillingPro.Desktop.Forms
 
             if (_brandSubtitle != null) _brandSubtitle.Visible = !_sidebarCollapsed;
             if (_sidebarFooter != null) _sidebarFooter.Visible = !_sidebarCollapsed;
+            if (_logoutButton != null)
+            {
+                _logoutButton.Width = Math.Max(52, _sidebar.ClientSize.Width - 14);
+                _logoutButton.Text = _sidebarCollapsed ? "⇥" : "⇥   Logout";
+                _logoutButton.TextAlign = _sidebarCollapsed ? ContentAlignment.MiddleCenter : ContentAlignment.MiddleLeft;
+                _logoutButton.Padding = _sidebarCollapsed ? new Padding(0) : new Padding(12, 0, 4, 0);
+            }
             ResizeNavigationButtons();
         }
 
