@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -339,10 +341,11 @@ namespace MediBillingPro.Desktop.Forms
             for (int i = 0; i < 4; i++)
                 cards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
             cards.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            cards.Controls.Add(CreateMetricCard("MEDICINE INVENTORY", "Manage products", "Search, edit and review medicines"), 0, 0);
-            cards.Controls.Add(CreateMetricCard("SUPPLIERS", "Supplier directory", "Manage supplier contacts"), 1, 0);
-            cards.Controls.Add(CreateMetricCard("PURCHASES", "Purchase entry", "Receive supplier stock"), 2, 0);
-            cards.Controls.Add(CreateMetricCard("SALES & BILLING", "Invoice billing", "Sell and track payments"), 3, 0);
+            var metrics = LoadDashboardMetrics();
+            cards.Controls.Add(CreateMetricCard("SALES TODAY", metrics[0], "Completed invoices today"), 0, 0);
+            cards.Controls.Add(CreateMetricCard("PURCHASES TODAY", metrics[1], "Supplier purchases today"), 1, 0);
+            cards.Controls.Add(CreateMetricCard("STOCK UNITS", metrics[2], "Units currently on hand"), 2, 0);
+            cards.Controls.Add(CreateMetricCard("LOW STOCK ITEMS", metrics[3], "At or below reorder level"), 3, 0);
             page.Controls.Add(cards);
 
             var quickTitle = new Label
@@ -417,6 +420,49 @@ namespace MediBillingPro.Desktop.Forms
                 quickActions.Width = Math.Max(600, page.ClientSize.Width - 8);
                 info.Width = Math.Max(600, page.ClientSize.Width - 8);
             };
+        }
+
+        private string[] LoadDashboardMetrics()
+        {
+            var fallback = new[] { "--", "--", "--", "--" };
+            var settings = ConfigurationManager.ConnectionStrings["MediBillingProDB"];
+            if (settings == null || string.IsNullOrWhiteSpace(settings.ConnectionString)) return fallback;
+
+            const string sql = @"
+SELECT
+    COALESCE((SELECT SUM(TotalAmount) FROM dbo.Invoices
+              WHERE InvoiceStatus <> 'Voided' AND CONVERT(date, InvoiceDate) = CONVERT(date, GETDATE())), 0) AS SalesToday,
+    COALESCE((SELECT SUM(TotalAmount) FROM dbo.Purchases
+              WHERE CONVERT(date, PurchaseDate) = CONVERT(date, GETDATE())), 0) AS PurchasesToday,
+    COALESCE((SELECT SUM(QuantityOnHand) FROM dbo.MedicineBatches), 0) AS StockUnits,
+    (SELECT COUNT(*) FROM dbo.Medicines m
+     OUTER APPLY (SELECT SUM(b.QuantityOnHand) AS OnHand
+                  FROM dbo.MedicineBatches b WHERE b.MedicineId = m.MedicineId) stock
+     WHERE m.IsActive = 1 AND COALESCE(stock.OnHand, 0) <= COALESCE(m.ReorderLevel, 0)) AS LowStockItems;";
+            try
+            {
+                using (var connection = new SqlConnection(settings.ConnectionString))
+                using (var command = new SqlCommand(sql, connection))
+                {
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (!reader.Read()) return fallback;
+                        return new[]
+                        {
+                            "₹" + Convert.ToDecimal(reader["SalesToday"]).ToString("N2"),
+                            "₹" + Convert.ToDecimal(reader["PurchasesToday"]).ToString("N2"),
+                            Convert.ToDecimal(reader["StockUnits"]).ToString("N0"),
+                            Convert.ToInt32(reader["LowStockItems"]).ToString("N0")
+                        };
+                    }
+                }
+            }
+            catch
+            {
+                // Keep the dashboard available if the operational SQL scripts have not been run yet.
+                return fallback;
+            }
         }
 
         private Control CreateMetricCard(string title, string value, string description)
