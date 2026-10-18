@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projects\\MediBillingPro\\MediBillingPro.Application\\MediBillingPro.Application.csproj": {}
+    "C:\\Projects\\MediBilling\\MediBillingPro.Application\\MediBillingPro.Application.csproj": {}
   },
   "projects": {
-    "C:\\Projects\\MediBillingPro\\MediBillingPro.Application\\MediBillingPro.Application.csproj": {
+    "C:\\Projects\\MediBilling\\MediBillingPro.Application\\MediBillingPro.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\MediBillingPro\\MediBillingPro.Application\\MediBillingPro.Application.csproj",
+        "projectUniqueName": "C:\\Projects\\MediBilling\\MediBillingPro.Application\\MediBillingPro.Application.csproj",
         "projectName": "MediBillingPro.Application",
-        "projectPath": "C:\\Projects\\MediBillingPro\\MediBillingPro.Application\\MediBillingPro.Application.csproj",
+        "projectPath": "C:\\Projects\\MediBilling\\MediBillingPro.Application\\MediBillingPro.Application.csproj",
         "packagesPath": "C:\\Users\\palak\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\MediBillingPro\\MediBillingPro.Application\\obj\\",
+        "outputPath": "C:\\Projects\\MediBilling\\MediBillingPro.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
@@ -32,8 +32,8 @@
           "netstandard2.0": {
             "targetAlias": "netstandard2.0",
             "projectReferences": {
-              "C:\\Projects\\MediBillingPro\\MediBillingPro.Domain\\MediBillingPro.Domain.csproj": {
-                "projectPath": "C:\\Projects\\MediBillingPro\\MediBillingPro.Domain\\MediBillingPro.Domain.csproj"
+              "C:\\Projects\\MediBilling\\MediBillingPro.Domain\\MediBillingPro.Domain.csproj": {
+                "projectPath": "C:\\Projects\\MediBilling\\MediBillingPro.Domain\\MediBillingPro.Domain.csproj"
               }
             }
           }
@@ -69,14 +69,14 @@
         }
       }
     },
-    "C:\\Projects\\MediBillingPro\\MediBillingPro.Domain\\MediBillingPro.Domain.csproj": {
+    "C:\\Projects\\MediBilling\\MediBillingPro.Domain\\MediBillingPro.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\MediBillingPro\\MediBillingPro.Domain\\MediBillingPro.Domain.csproj",
+        "projectUniqueName": "C:\\Projects\\MediBilling\\MediBillingPro.Domain\\MediBillingPro.Domain.csproj",
         "projectName": "MediBillingPro.Domain",
-        "projectPath": "C:\\Projects\\MediBillingPro\\MediBillingPro.Domain\\MediBillingPro.Domain.csproj",
+        "projectPath": "C:\\Projects\\MediBilling\\MediBillingPro.Domain\\MediBillingPro.Domain.csproj",
         "packagesPath": "C:\\Users\\palak\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\MediBillingPro\\MediBillingPro.Domain\\obj\\",
+        "outputPath": "C:\\Projects\\MediBilling\\MediBillingPro.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
