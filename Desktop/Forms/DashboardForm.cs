@@ -20,7 +20,7 @@ namespace MediBillingPro.Desktop.Forms
         private readonly Color muted = Color.FromArgb(91, 111, 101);
         private readonly Panel sidebar;
         private readonly Panel main;
-        private readonly Panel navItems;
+        private Panel navItems;
         private bool collapsed;
         private const int ExpandedWidth = 244;
         private const int CollapsedWidth = 76;
