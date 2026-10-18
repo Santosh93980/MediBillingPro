@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "a4lar8ebKTCLLQ3irJ7NTV3dyxmhXxse2v/9Sc6xupYCcDNogm6vh8Z33TOlnfiiCQXyOmzkkvrPD42fB8gy9Q==",
+  "dgSpecHash": "k6RGkPI/M4rQTzQ1RNhvQiIG5MHPYsS0tYZplm3kzzOWzgCkot/cNTR9OytZQL8hO7YjgfRQCGkGAbMShYKF8g==",
   "success": true,
-  "projectFilePath": "C:\\Users\\palak\\Source\\Repos\\MediBillingProV1\\MediBillingPro.Domain\\MediBillingPro.Domain.csproj",
+  "projectFilePath": "C:\\Users\\palak\\source\\repos\\MediBillingProV1\\MediBillingPro.Domain\\MediBillingPro.Domain.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\palak\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "C:\\Users\\palak\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
