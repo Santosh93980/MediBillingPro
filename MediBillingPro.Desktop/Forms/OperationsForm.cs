@@ -14,9 +14,9 @@ namespace MediBillingPro.Desktop.Forms
     {
         private readonly string _page;
         private readonly string _connectionString;
-        private readonly Color _green = Color.FromArgb(8, 127, 91);
-        private readonly Color _dark = Color.FromArgb(21, 60, 49);
-        private readonly Color _pageColor = Color.FromArgb(244, 248, 246);
+        private readonly Color _green = MediBillingTheme.Primary;
+        private readonly Color _dark = MediBillingTheme.Secondary;
+        private readonly Color _pageColor = MediBillingTheme.Page;
         private DataGridView _grid;
         private TextBox _search;
         private Label _status;
