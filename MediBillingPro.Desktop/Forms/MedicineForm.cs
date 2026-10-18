@@ -20,11 +20,11 @@ namespace MediBillingPro.Desktop.Forms
     {
         private readonly MedicineService _service;
 
-        private readonly Color _green = Color.FromArgb(8, 127, 91);
-        private readonly Color _darkGreen = Color.FromArgb(21, 60, 49);
-        private readonly Color _lightGreen = Color.FromArgb(231, 246, 239);
-        private readonly Color _page = Color.FromArgb(244, 248, 246);
-        private readonly Color _muted = Color.FromArgb(91, 111, 101);
+        private readonly Color _green = MediBillingTheme.Primary;
+        private readonly Color _darkGreen = MediBillingTheme.Secondary;
+        private readonly Color _lightGreen = MediBillingTheme.PrimaryLight;
+        private readonly Color _page = MediBillingTheme.Page;
+        private readonly Color _muted = MediBillingTheme.Muted;
         private readonly Color _red = Color.FromArgb(180, 35, 24);
 
         private TextBox txtSearch;
@@ -442,7 +442,7 @@ namespace MediBillingPro.Desktop.Forms
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Font = new Font("Segoe UI", 14F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(91, 111, 101),
+                ForeColor = MediBillingTheme.Muted,
                 BackColor = Color.White,
                 Visible = false
             };
@@ -913,7 +913,7 @@ namespace MediBillingPro.Desktop.Forms
 
             Color editColor = editHovered
                 ? Color.FromArgb(21, 96, 67)
-                : Color.FromArgb(8, 127, 91);
+                : MediBillingTheme.Primary;
 
             Color deleteColor = deleteHovered
                 ? Color.FromArgb(153, 27, 27)
