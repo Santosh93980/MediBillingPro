@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.37627.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediBillingPro.Desktop", "MediBillingPro.Desktop.csproj", "{797996B3-F0A7-4094-8119-A30DA54CB71C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediBillingPro.Domain", "..\MediBillingPro.Domain\MediBillingPro.Domain.csproj", "{C1B994E9-B0D3-401D-8BF6-A3D5FA65FD33}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediBillingPro.Application", "..\MediBillingPro.Application\MediBillingPro.Application.csproj", "{974987A4-F1C1-4A3B-98EA-E92F89D7F7BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediBillingPro.Infrastructure", "..\MediBillingPro.Infrastructure\MediBillingPro.Infrastructure.csproj", "{C15551BF-43B5-46EE-8BE9-DAD34BF7C480}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediBillingPro.Tests", "..\MediBillingPro.Tests\MediBillingPro.Tests.csproj", "{554257FC-A53D-40AB-84B5-1FC3EC78D4A8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{797996B3-F0A7-4094-8119-A30DA54CB71C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{797996B3-F0A7-4094-8119-A30DA54CB71C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{797996B3-F0A7-4094-8119-A30DA54CB71C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{797996B3-F0A7-4094-8119-A30DA54CB71C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1B994E9-B0D3-401D-8BF6-A3D5FA65FD33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1B994E9-B0D3-401D-8BF6-A3D5FA65FD33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1B994E9-B0D3-401D-8BF6-A3D5FA65FD33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1B994E9-B0D3-401D-8BF6-A3D5FA65FD33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{974987A4-F1C1-4A3B-98EA-E92F89D7F7BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{974987A4-F1C1-4A3B-98EA-E92F89D7F7BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{974987A4-F1C1-4A3B-98EA-E92F89D7F7BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{974987A4-F1C1-4A3B-98EA-E92F89D7F7BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C15551BF-43B5-46EE-8BE9-DAD34BF7C480}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C15551BF-43B5-46EE-8BE9-DAD34BF7C480}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C15551BF-43B5-46EE-8BE9-DAD34BF7C480}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C15551BF-43B5-46EE-8BE9-DAD34BF7C480}.Release|Any CPU.Build.0 = Release|Any CPU
+		{554257FC-A53D-40AB-84B5-1FC3EC78D4A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{554257FC-A53D-40AB-84B5-1FC3EC78D4A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{554257FC-A53D-40AB-84B5-1FC3EC78D4A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{554257FC-A53D-40AB-84B5-1FC3EC78D4A8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A02310E4-DC5B-4496-90F7-B5531998B719}
+	EndGlobalSection
+EndGlobal
