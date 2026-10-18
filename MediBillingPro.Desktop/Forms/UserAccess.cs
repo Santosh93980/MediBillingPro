@@ -59,7 +59,9 @@ BEGIN
   CreatedAt DATETIME2 NOT NULL CONSTRAINT DF_AppUsers_CreatedAt DEFAULT(SYSDATETIME()),
   CONSTRAINT UQ_AppUsers_UserName UNIQUE(UserName)
  );
-END;";
+END;
+IF OBJECT_ID(N'dbo.Invoices',N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Invoices',N'PaymentMethod') IS NULL
+    ALTER TABLE dbo.Invoices ADD PaymentMethod NVARCHAR(40) NULL;";
             using (var cn = new SqlConnection(ConnectionString))
             using (var cmd = new SqlCommand(sql, cn))
             {
