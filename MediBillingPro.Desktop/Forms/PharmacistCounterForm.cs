@@ -75,9 +75,22 @@ namespace MediBillingPro.Desktop.Forms
             var right=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=5,BackColor=Color.White,Padding=new Padding(12)};
             right.RowStyles.Add(new RowStyle(SizeType.AutoSize));right.RowStyles.Add(new RowStyle(SizeType.Percent,100));right.RowStyles.Add(new RowStyle(SizeType.AutoSize));right.RowStyles.Add(new RowStyle(SizeType.AutoSize));right.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             right.Controls.Add(new Label{Text="Current bill",AutoSize=true,Font=new Font("Segoe UI",17,FontStyle.Bold),ForeColor=_dark,Margin=new Padding(0,0,0,10)},0,0);
-            StyleGrid(_cartGrid);_cartGrid.DataSource=_cart;_cartGrid.Columns["BatchId"].Visible=false;_cartGrid.Columns["MedicineId"].Visible=false;_cartGrid.Columns["Stock"].Visible=false;_cartGrid.Columns["GSTPercent"].Visible=false;_cartGrid.Columns["Discount"].Visible=false;_cartGrid.Columns["Expiry"].DefaultCellStyle.Format="dd-MMM-yyyy";_cartGrid.Columns["UnitPrice"].DefaultCellStyle.Format="N2";
-            _cartGrid.Columns["Item"].HeaderText="Medicine / product";_cartGrid.Columns["Qty"].HeaderText="Qty";_cartGrid.Columns["UnitPrice"].HeaderText="Price";_cartGrid.Columns["Batch"].HeaderText="Batch";
-            _cartGrid.Columns["Qty"].ReadOnly=false;_cartGrid.Columns["Item"].ReadOnly=true;_cartGrid.Columns["Batch"].ReadOnly=true;_cartGrid.Columns["UnitPrice"].ReadOnly=true;_cartGrid.Columns["Expiry"].ReadOnly=true;
+            StyleGrid(_cartGrid);
+            // Define columns explicitly before binding so column lookup never depends on auto-generation timing.
+            _cartGrid.AutoGenerateColumns = false;
+            AddCartColumn("BatchId", "BatchId", false, true);
+            AddCartColumn("MedicineId", "MedicineId", false, true);
+            AddCartColumn("Item", "Medicine / product", true, true);
+            AddCartColumn("Batch", "Batch", true, true);
+            AddCartColumn("Expiry", "Expiry", true, true);
+            AddCartColumn("Qty", "Qty", true, false);
+            AddCartColumn("Stock", "Stock", false, true);
+            AddCartColumn("UnitPrice", "Price", true, true);
+            AddCartColumn("GSTPercent", "GSTPercent", false, true);
+            AddCartColumn("Discount", "Discount", false, true);
+            _cartGrid.Columns["Expiry"].DefaultCellStyle.Format = "dd-MMM-yyyy";
+            _cartGrid.Columns["UnitPrice"].DefaultCellStyle.Format = "N2";
+            _cartGrid.DataSource = _cart;
             _cartGrid.CellEndEdit+=(s,e)=>{if(e.RowIndex>=0&&_cart.Columns.Contains("Qty")){var row=_cart.Rows[e.RowIndex];int q; if(!int.TryParse(Convert.ToString(row["Qty"]),out q)||q<1)row["Qty"]=1;else if(q>Convert.ToInt32(row["Stock"]))row["Qty"]=Convert.ToInt32(row["Stock"]);UpdateTotals();}};
             right.Controls.Add(_cartGrid,0,1);
             var remove=new Button{Text="Remove selected item",AutoSize=true};remove.Click+=(s,e)=>{if(_cartGrid.CurrentRow!=null&&_cartGrid.CurrentRow.Index>=0){_cart.Rows.RemoveAt(_cartGrid.CurrentRow.Index);UpdateTotals();}};right.Controls.Add(remove,0,2);
@@ -98,6 +111,20 @@ namespace MediBillingPro.Desktop.Forms
             left.Controls.Add(_status,0,4);
             root.Controls.Add(left,0,0);root.Controls.Add(right,1,0);Controls.Add(root);
             UpdateTotals();
+        }
+
+        private void AddCartColumn(string name, string header, bool visible, bool readOnly)
+        {
+            var column = new DataGridViewTextBoxColumn
+            {
+                Name = name,
+                DataPropertyName = name,
+                HeaderText = header,
+                Visible = visible,
+                ReadOnly = readOnly,
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            };
+            _cartGrid.Columns.Add(column);
         }
 
         private void StyleGrid(DataGridView g)
