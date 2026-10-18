@@ -21,13 +21,13 @@ namespace MediBillingPro.Desktop.Forms
         private readonly MedicineService _service;
 
         private readonly Color darkGreen =
-            Color.FromArgb(21, 60, 49);
+            MediBillingTheme.Secondary;
 
         private readonly Color page =
-            Color.FromArgb(244, 248, 246);
+            MediBillingTheme.Page;
 
         private readonly Color muted =
-            Color.FromArgb(91, 111, 101);
+            MediBillingTheme.Muted;
 
         private DataGridView grid;
         private Label lblCount;
