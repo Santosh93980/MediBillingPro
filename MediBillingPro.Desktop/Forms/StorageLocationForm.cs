@@ -13,10 +13,10 @@ namespace MediBillingPro.Desktop.Forms
 {
     public partial class StorageLocationForm : Form
     {
-        private readonly Color green = Color.FromArgb(22, 163, 74);
-        private readonly Color darkGreen = Color.FromArgb(20, 83, 45);
-        private readonly Color page = Color.FromArgb(245, 250, 246);
-        private readonly Color muted = Color.FromArgb(100, 116, 139);
+        private readonly Color green = MediBillingTheme.Primary;
+        private readonly Color darkGreen = MediBillingTheme.Secondary;
+        private readonly Color page = MediBillingTheme.Page;
+        private readonly Color muted = MediBillingTheme.Muted;
 
         public StorageLocationForm(Medicine medicine)
         {
