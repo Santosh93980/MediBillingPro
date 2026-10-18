@@ -26,7 +26,7 @@ namespace MediBillingPro.Desktop.Forms
             MaximizeBox = false;
             MinimizeBox = false;
             ShowInTaskbar = false;
-            BackColor = Color.FromArgb(245, 250, 246);
+            BackColor = MediBillingTheme.Page;
             Font = new Font("Segoe UI", 10F);
             AutoScaleMode = AutoScaleMode.Dpi;
 
@@ -47,7 +47,7 @@ namespace MediBillingPro.Desktop.Forms
                 Text = "Price Details",
                 Dock = DockStyle.Fill,
                 Font = new Font("Segoe UI", 17F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(20, 83, 45),
+                ForeColor = MediBillingTheme.Secondary,
                 TextAlign = ContentAlignment.MiddleLeft
             };
 
@@ -116,7 +116,7 @@ namespace MediBillingPro.Desktop.Forms
                 };
 
                 if (i == 6)
-                    value.ForeColor = Color.FromArgb(22, 163, 74);
+                    value.ForeColor = MediBillingTheme.Primary;
 
                 details.Controls.Add(key, 0, i);
                 details.Controls.Add(value, 1, i);
@@ -128,7 +128,7 @@ namespace MediBillingPro.Desktop.Forms
             {
                 Text = "Close",
                 Size = new Size(100, 36),
-                BackColor = Color.FromArgb(22, 163, 74),
+                BackColor = MediBillingTheme.Primary,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand,
