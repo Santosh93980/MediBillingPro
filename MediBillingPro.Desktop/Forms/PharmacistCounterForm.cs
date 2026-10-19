@@ -35,7 +35,7 @@ namespace MediBillingPro.Desktop.Forms
             var cs=ConfigurationManager.ConnectionStrings["MediBillingProDB"];
             if(cs==null || string.IsNullOrWhiteSpace(cs.ConnectionString)) throw new InvalidOperationException("MediBillingProDB connection string is missing.");
             _cs=cs.ConnectionString;
-            Text="Pharmacy Counter | Fast Billing"; Dock=DockStyle.Fill; BackColor=_page; Font=new Font("Segoe UI",9.5F);
+            Text="Pharmacy Counter | Fast Billing"; Dock=DockStyle.Fill; BackColor=_page; Font=new Font("Segoe UI",9.5F); AutoScaleMode=AutoScaleMode.Dpi;
             BuildCart(); BuildLayout(); LoadResults("");
         }
 
