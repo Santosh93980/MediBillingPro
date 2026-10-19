@@ -124,7 +124,16 @@ WHERE UserName=@u AND PasswordHash=@p AND IsActive=1", cn))
             Controls.Add(title); Controls.Add(sub);
             AddLabel("Username", 38, 125); _username.SetBounds(38, 151, 380, 34); Controls.Add(_username);
             AddLabel("Password", 38, 199); _password.SetBounds(38, 225, 380, 34); _password.UseSystemPasswordChar = true; Controls.Add(_password);
-            var login = new Button { Text = "Sign in", Bounds = new Rectangle(38, 280, 380, 42), BackColor = MediBillingTheme.Primary, ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+            var login = new Button { Text = "Sign in", Bounds = new Rectangle(38, 280, 380, 42), BackColor = MediBillingTheme.Primary, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, UseVisualStyleBackColor = false };
+            login.FlatAppearance.BorderSize = 0;
+            login.FlatAppearance.MouseOverBackColor = MediBillingTheme.PrimaryHover;
+            Resize += (s, e) =>
+            {
+                int width = Math.Max(260, ClientSize.Width - 76);
+                _username.SetBounds(38, 151, width, 34);
+                _password.SetBounds(38, 225, width, 34);
+                login.SetBounds(38, 280, width, 42);
+            };
             login.Click += (s,e) => SignIn(); Controls.Add(login); AcceptButton = login;
             var hint = new Label { Text = "Demo: admin / Admin@123   •   pharmacist / Pharma@123", AutoSize = false, Bounds = new Rectangle(38, 340, 385, 42), ForeColor = MediBillingTheme.Muted, Font = new Font("Segoe UI", 8.5F) };
             Controls.Add(hint);
@@ -147,18 +156,19 @@ WHERE UserName=@u AND PasswordHash=@p AND IsActive=1", cn))
         private readonly DataGridView _grid = new DataGridView();
         public UserManagementForm()
         {
-            Text = "User Management"; Dock = DockStyle.Fill; BackColor = MediBillingTheme.Page; Font = new Font("Segoe UI",9.5F);
+            Text = "User Management"; Dock = DockStyle.Fill; BackColor = MediBillingTheme.Page; Font = new Font("Segoe UI",9.5F); AutoScaleMode = AutoScaleMode.Dpi; MinimumSize = new Size(640, 420);
             var root = new TableLayoutPanel { Dock=DockStyle.Fill, Padding=new Padding(18), RowCount=3, ColumnCount=1, BackColor=BackColor };
             root.RowStyles.Add(new RowStyle(SizeType.AutoSize)); root.RowStyles.Add(new RowStyle(SizeType.AutoSize)); root.RowStyles.Add(new RowStyle(SizeType.Percent,100));
             root.Controls.Add(new Label { Text="Users & Roles", AutoSize=true, Font=new Font("Segoe UI",22,FontStyle.Bold), ForeColor=MediBillingTheme.Secondary, Margin=new Padding(0,0,0,14) },0,0);
-            var actions = new FlowLayoutPanel { Dock=DockStyle.Fill, AutoSize=true, Margin=new Padding(0,0,0,12) };
-            var add = new Button { Text="Create user", AutoSize=true, Height=36, BackColor=MediBillingTheme.Primary, ForeColor=Color.White, FlatStyle=FlatStyle.Flat };
-            var toggle = new Button { Text="Enable / Disable selected", AutoSize=true, Height=36 };
-            var refresh = new Button { Text="Refresh", AutoSize=true, Height=36 };
+            var actions = new FlowLayoutPanel { Dock=DockStyle.Fill, AutoSize=true, WrapContents=true, Padding=new Padding(0,4,0,4), Margin=new Padding(0,0,0,12), BackColor=MediBillingTheme.Page };
+            var add = new Button { Text="Create user", AutoSize=true, Height=36, Margin=new Padding(4), Padding=new Padding(10,2,10,2), BackColor=MediBillingTheme.Primary, ForeColor=Color.White, FlatStyle=FlatStyle.Flat, UseVisualStyleBackColor=false };
+            var toggle = new Button { Text="Enable / Disable selected", AutoSize=true, Height=36, Margin=new Padding(4), Padding=new Padding(10,2,10,2), BackColor=MediBillingTheme.Secondary, ForeColor=Color.White, FlatStyle=FlatStyle.Flat, UseVisualStyleBackColor=false };
+            var refresh = new Button { Text="Refresh", AutoSize=true, Height=36, Margin=new Padding(4), Padding=new Padding(10,2,10,2), BackColor=Color.FromArgb(241,245,249), ForeColor=MediBillingTheme.Secondary, FlatStyle=FlatStyle.Flat, UseVisualStyleBackColor=false };
             add.Click += (s,e)=>CreateUser(); toggle.Click += (s,e)=>ToggleUser(); refresh.Click += (s,e)=>LoadUsers();
             actions.Controls.Add(add); actions.Controls.Add(toggle); actions.Controls.Add(refresh); root.Controls.Add(actions,0,1);
             _grid.Dock=DockStyle.Fill; _grid.ReadOnly=true; _grid.AllowUserToAddRows=false; _grid.AutoSizeColumnsMode=DataGridViewAutoSizeColumnsMode.Fill;
             _grid.SelectionMode=DataGridViewSelectionMode.FullRowSelect; _grid.MultiSelect=false; _grid.BackgroundColor=Color.White; _grid.RowHeadersVisible=false;
+            MediBillingPro.Desktop.UI.Common.UiStyle.StyleGrid(_grid);
             root.Controls.Add(_grid,0,2); Controls.Add(root); LoadUsers();
         }
 
@@ -179,7 +189,7 @@ WHERE UserName=@u AND PasswordHash=@p AND IsActive=1", cn))
                 var user=field("Username",0); var display=field("Display name",1); var pass=field("Password",2); pass.UseSystemPasswordChar=true;
                 p.Controls.Add(new Label{Text="Role",Dock=DockStyle.Fill,TextAlign=ContentAlignment.MiddleLeft},0,3);
                 var role=new ComboBox{Dock=DockStyle.Fill,DropDownStyle=ComboBoxStyle.DropDownList}; role.Items.AddRange(UserAccess.Roles); role.SelectedIndex=1; p.Controls.Add(role,1,3);
-                var save=new Button{Text="Create",Dock=DockStyle.Fill,BackColor=MediBillingTheme.Primary,ForeColor=Color.White}; var cancel=new Button{Text="Cancel",Dock=DockStyle.Fill,DialogResult=DialogResult.Cancel};
+                var save=new Button{Text="Create",Dock=DockStyle.Fill,Margin=new Padding(4),BackColor=MediBillingTheme.Primary,ForeColor=Color.White,FlatStyle=FlatStyle.Flat,UseVisualStyleBackColor=false}; var cancel=new Button{Text="Cancel",Dock=DockStyle.Fill,Margin=new Padding(4),BackColor=MediBillingTheme.Secondary,ForeColor=Color.White,FlatStyle=FlatStyle.Flat,DialogResult=DialogResult.Cancel,UseVisualStyleBackColor=false};
                 p.Controls.Add(save,0,4); p.Controls.Add(cancel,1,4); f.Controls.Add(p); f.AcceptButton=save; f.CancelButton=cancel;
                 save.Click+=(s,e)=> {
                     if(string.IsNullOrWhiteSpace(user.Text)||string.IsNullOrWhiteSpace(display.Text)||pass.Text.Length<8) { MessageBox.Show("Enter username, display name and a password of at least 8 characters."); return; }
