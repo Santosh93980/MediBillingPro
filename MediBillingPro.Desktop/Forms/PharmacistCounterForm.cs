@@ -39,6 +39,16 @@ namespace MediBillingPro.Desktop.Forms
             BuildCart(); BuildLayout(); LoadResults("");
         }
 
+        private int ResolveOperationalUserId(SqlConnection cn, SqlTransaction tx, string username)
+        {
+            using (var cmd = new SqlCommand("SELECT TOP (1) UserId FROM dbo.Users WHERE Username=@username AND IsActive=1", cn, tx))
+            {
+                cmd.Parameters.AddWithValue("@username", username ?? "");
+                object value = cmd.ExecuteScalar();
+                return value == null || value == DBNull.Value ? 0 : Convert.ToInt32(value);
+            }
+        }
+
         private SqlConnection OpenConnection(){var c=new SqlConnection(_cs);c.Open();return c;}
 
         private void BuildCart()
@@ -223,7 +233,7 @@ VALUES(@n,NULL,SYSDATETIME(),@sub,0,@tax,0,@total,@paid,@balance,@status,'Comple
                         {
                             cmd.Parameters.AddWithValue("@n",invoiceNo);cmd.Parameters.AddWithValue("@sub",subtotal);cmd.Parameters.AddWithValue("@tax",tax);cmd.Parameters.AddWithValue("@total",total);
                             cmd.Parameters.AddWithValue("@paid",Math.Min(received,total));cmd.Parameters.AddWithValue("@balance",Math.Max(0,total-received));cmd.Parameters.AddWithValue("@status",received>=total?"Paid":received>0?"Partial":"Unpaid");
-                            cmd.Parameters.AddWithValue("@user",_session.UserId);cmd.Parameters.AddWithValue("@mode",Convert.ToString(_payment.SelectedItem));invoiceId=Convert.ToInt32(cmd.ExecuteScalar());
+                            cmd.Parameters.AddWithValue("@user", ResolveOperationalUserId(cn, tx, _session.UserName) == 0 ? (object)DBNull.Value : ResolveOperationalUserId(cn, tx, _session.UserName));cmd.Parameters.AddWithValue("@mode",Convert.ToString(_payment.SelectedItem));invoiceId=Convert.ToInt32(cmd.ExecuteScalar());
                         }
                         foreach(DataRow r in _cart.Rows)
                         {
