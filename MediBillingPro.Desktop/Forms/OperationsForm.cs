@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using MediBillingPro.Desktop.UI.Common;
 
 namespace MediBillingPro.Desktop.Forms
 {
@@ -53,6 +54,8 @@ namespace MediBillingPro.Desktop.Forms
             Text = _page;
             BackColor = _pageColor;
             Font = new Font("Segoe UI", 9.5F);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            MinimumSize = new Size(760, 500);
             BuildPage();
         }
 
@@ -86,6 +89,7 @@ namespace MediBillingPro.Desktop.Forms
             root.Controls.Add(actions, 0, 1);
             var body = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(10) };
             _grid = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, RowHeadersVisible = false, AutoGenerateColumns = true };
+            UiStyle.StyleGrid(_grid);
             _grid.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0 && _page == "Customers") EditCustomer(Convert.ToInt32(_grid.Rows[e.RowIndex].Cells["CustomerId"].Value)); if (e.RowIndex >= 0 && _page == "Settings") EditSetting(Convert.ToInt32(_grid.Rows[e.RowIndex].Cells["SettingId"].Value)); };
             body.Controls.Add(_grid);
             root.Controls.Add(body, 0, 2);
@@ -95,7 +99,7 @@ namespace MediBillingPro.Desktop.Forms
 
         private void AddButton(Control parent, string text, Action action, bool primary)
         {
-            var b = new Button { Text = text, AutoSize = true, Height = 34, Padding = new Padding(12, 2, 12, 2), FlatStyle = FlatStyle.Flat, BackColor = primary ? _green : Color.White, ForeColor = primary ? Color.White : _dark, Cursor = Cursors.Hand, Margin = new Padding(0, 0, 8, 0) };
+            var b = new Button { Text = text, AutoSize = true, Height = 34, Padding = new Padding(12, 2, 12, 2), FlatStyle = FlatStyle.Flat, BackColor = primary ? _green : Color.White, ForeColor = primary ? Color.White : _dark, Cursor = Cursors.Hand, Margin = new Padding(4, 3, 4, 3) };
             b.FlatAppearance.BorderColor = _green;
             b.Click += (s, e) => { try { action(); } catch (Exception ex) { MessageBox.Show(ex.Message, _page, MessageBoxButtons.OK, MessageBoxIcon.Error); } };
             parent.Controls.Add(b);
@@ -267,7 +271,9 @@ namespace MediBillingPro.Desktop.Forms
 
                 var cartGrid = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoGenerateColumns = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, RowHeadersVisible = false };
                 cartGrid.DataSource = cart;
-                cartGrid.Columns["MedicineId"].Visible = false;
+                // Optional columns may not exist in every cart schema.
+                if (cartGrid.Columns.Contains("MedicineId")) cartGrid.Columns["MedicineId"].Visible = false;
+                if (cartGrid.Columns.Contains("BatchId")) cartGrid.Columns["BatchId"].Visible = false;
                 p.Controls.Add(cartGrid, 0, 6); p.SetColumnSpan(cartGrid, 4);
 
                 var summary = new Label { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleRight, ForeColor = _dark, Font = new Font("Segoe UI", 10F, FontStyle.Bold), Text = "Subtotal: ₹0.00    GST: ₹0.00    Discount: ₹0.00    Total: ₹0.00" };
@@ -406,9 +412,10 @@ namespace MediBillingPro.Desktop.Forms
 
                 var cartGrid = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoGenerateColumns = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, RowHeadersVisible = false };
                 cartGrid.DataSource = cart;
-                cartGrid.Columns["BatchId"].Visible = false;
-                cartGrid.Columns["MedicineId"].Visible = false;
-                cartGrid.Columns["StockAvailable"].Visible = false;
+                // Guard optional hidden columns before indexing the collection.
+                if (cartGrid.Columns.Contains("BatchId")) cartGrid.Columns["BatchId"].Visible = false;
+                if (cartGrid.Columns.Contains("MedicineId")) cartGrid.Columns["MedicineId"].Visible = false;
+                if (cartGrid.Columns.Contains("StockAvailable")) cartGrid.Columns["StockAvailable"].Visible = false;
                 p.Controls.Add(cartGrid, 0, 4); p.SetColumnSpan(cartGrid, 4);
 
                 var summary = new Label { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleRight, ForeColor = _dark, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
