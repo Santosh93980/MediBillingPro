@@ -408,13 +408,14 @@ namespace MediBillingPro.Desktop.Forms
             var quickActions = new FlowLayoutPanel
             {
                 Location = new Point(0, 304),
-                Width = Math.Max(600, page.ClientSize.Width - 8),
-                Height = 112,
+                Width = Math.Max(300, page.ClientSize.Width - 8),
+                Height = 120,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 WrapContents = true,
-                BackColor = Page,
-                Margin = Padding.Empty,
-                Padding = Padding.Empty
+                AutoScroll = true,
+                BackColor = Color.FromArgb(239, 246, 255),
+                Margin = new Padding(0, 0, 0, 8),
+                Padding = new Padding(6)
             };
             if (_session != null && (_session.IsPharmacist || _session.Role == "Cashier"))
             {
@@ -576,7 +577,7 @@ SELECT
                 Text = text + "   →",
                 Width = 240,
                 Height = 44,
-                Margin = new Padding(0, 0, 12, 0),
+                Margin = new Padding(0, 0, 10, 8),
                 BackColor = Green,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
@@ -585,6 +586,7 @@ SELECT
                 UseVisualStyleBackColor = false
             };
             button.FlatAppearance.BorderSize = 0;
+            button.FlatAppearance.MouseOverBackColor = MediBillingTheme.PrimaryHover;
             button.Click += (s, e) => action();
             return button;
         }
