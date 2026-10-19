@@ -68,7 +68,7 @@ namespace MediBillingPro.Desktop.UI.Common
                     "Segoe UI", 9.5F, FontStyle.Bold),
                 Cursor = Cursors.Hand,
                 UseVisualStyleBackColor = false,
-                Margin = new Padding(5)
+                Margin = new Padding(6, 4, 6, 4)
             };
 
             button.FlatAppearance.BorderSize = 0;
@@ -100,18 +100,18 @@ namespace MediBillingPro.Desktop.UI.Common
                 DarkGreen;
 
             grid.DefaultCellStyle.SelectionBackColor =
-                Color.FromArgb(220, 241, 230);
+                Color.FromArgb(204, 251, 241);
 
             grid.DefaultCellStyle.SelectionForeColor =
                 DarkGreen;
 
             grid.RowsDefaultCellStyle.BackColor = Color.White;
             grid.AlternatingRowsDefaultCellStyle.BackColor =
-                Color.FromArgb(249, 252, 250);
+                Color.FromArgb(248, 250, 252);
 
             grid.ColumnHeadersHeight = 44;
             grid.RowTemplate.Height = 42;
-            grid.GridColor = Color.FromArgb(230, 237, 233);
+            grid.GridColor = Color.FromArgb(226, 232, 240);
             grid.CellBorderStyle =
                 DataGridViewCellBorderStyle.SingleHorizontal;
         }
