@@ -27,7 +27,7 @@ DECLARE @tables TABLE(TableName SYSNAME);
 INSERT INTO @tables(TableName) VALUES
 (N'AppUsers'),(N'Roles'),(N'Medicines'),(N'Suppliers'),(N'MedicineBatches'),
 (N'Customers'),(N'Invoices'),(N'InvoiceItems'),(N'Purchases'),(N'PurchaseItems'),(N'AppSettings');
-DECLARE @t SYSNAME, @obj INT, @pk SYSNAME, @sql NVARCHAR(MAX), @trigger SYSNAME;
+DECLARE @t SYSNAME, @obj INT, @pk SYSNAME, @sql NVARCHAR(MAX), @trigger SYSNAME, @createdByType INT, @createdBySet NVARCHAR(300);
 DECLARE table_cursor CURSOR LOCAL FAST_FORWARD FOR SELECT TableName FROM @tables;
 OPEN table_cursor; FETCH NEXT FROM table_cursor INTO @t;
 WHILE @@FETCH_STATUS=0
@@ -37,6 +37,8 @@ BEGIN
  BEGIN
   IF COL_LENGTH(N'dbo.'+@t,N'CreatedBy') IS NULL
    EXEC(N'ALTER TABLE dbo.'+QUOTENAME(@t)+N' ADD CreatedBy NVARCHAR(150) NULL;');
+  IF COL_LENGTH(N'dbo.'+@t,N'CreatedByName') IS NULL
+   EXEC(N'ALTER TABLE dbo.'+QUOTENAME(@t)+N' ADD CreatedByName NVARCHAR(150) NULL;');
   IF COL_LENGTH(N'dbo.'+@t,N'CreatedDate') IS NULL
    EXEC(N'ALTER TABLE dbo.'+QUOTENAME(@t)+N' ADD CreatedDate DATETIME2 NULL;');
   IF COL_LENGTH(N'dbo.'+@t,N'UpdatedBy') IS NULL
@@ -53,6 +55,8 @@ BEGIN
 
   IF @pk IS NOT NULL
   BEGIN
+   SELECT @createdByType=system_type_id FROM sys.columns WHERE object_id=@obj AND name=N'CreatedBy';
+   SET @createdBySet=CASE WHEN @createdByType IN (48,52,56,127) THEN N'' ELSE N'CreatedBy=COALESCE(target.CreatedBy,@uname),' END;
    SET @trigger=N'trg_Audit_'+@t;
    SET @sql=N'CREATE OR ALTER TRIGGER dbo.'+QUOTENAME(@trigger)+N' ON dbo.'+QUOTENAME(@t)+N'
 AFTER INSERT, UPDATE, DELETE
@@ -64,7 +68,8 @@ BEGIN
  DECLARE @screen NVARCHAR(150)=COALESCE(CONVERT(NVARCHAR(150),SESSION_CONTEXT(N''ScreenName'')),N''Unattributed database operation'');
  DECLARE @now DATETIME2=SYSUTCDATETIME();
  UPDATE target SET
-  CreatedBy=COALESCE(target.CreatedBy,@uname),
+  CreatedByName=COALESCE(target.CreatedByName,@uname),
+  '+@createdBySet+N'
   CreatedDate=COALESCE(target.CreatedDate,@now),
   UpdatedBy=@uname, UpdatedDate=@now
  FROM dbo.'+QUOTENAME(@t)+N' target
