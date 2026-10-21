@@ -41,7 +41,7 @@ namespace MediBillingPro.Desktop.Forms
         private ComboBox cmbProductType;
         private NumericUpDown numPurchasePrice;
         private NumericUpDown numMarginPercent;
-        private ComboBox cmbGstPercent;
+        private NumericUpDown numDiscountPercent;
 
         private Label lblSellingPrice;
         private Label lblTaxablePrice;
@@ -278,25 +278,19 @@ namespace MediBillingPro.Desktop.Forms
 
             AddField(content, "Margin / markup (%)", numMarginPercent);
 
-            cmbGstPercent = new ComboBox
+            numDiscountPercent = new NumericUpDown
             {
                 Dock = DockStyle.Fill,
-                DropDownStyle = ComboBoxStyle.DropDownList,
+                DecimalPlaces = 2,
+                Minimum = 0,
+                Maximum = 100,
+                Increment = 0.5m,
                 Font = new Font("Segoe UI", 10F),
-                Margin = new Padding(3, 5, 3, 8)
+                Margin = new Padding(3, 5, 3, 8),
+                Value = 0
             };
-
-            cmbGstPercent.Items.AddRange(new object[]
-            {
-                "0%", "5%", "12%", "18%", "28%"
-            });
-
-            cmbGstPercent.SelectedIndex = 0;
-
-            cmbGstPercent.SelectedIndexChanged += (s, e) =>
-                RecalculatePrices();
-
-            AddField(content, "Discount rate (%)", cmbGstPercent);
+            numDiscountPercent.ValueChanged += (s, e) => RecalculatePrices();
+            AddField(content, "Discount rate (%)", numDiscountPercent);
 
             lblTaxablePrice = CreatePriceLabel();
             AddField(content, "Price before discount", lblTaxablePrice);
@@ -428,18 +422,7 @@ namespace MediBillingPro.Desktop.Forms
 
         private decimal GetSelectedGstPercent()
         {
-            if (cmbGstPercent == null ||
-                cmbGstPercent.SelectedItem == null)
-                return 0m;
-
-            string value = cmbGstPercent.SelectedItem.ToString()
-                .Replace("%", "").Trim();
-
-            decimal rate;
-
-            return decimal.TryParse(value, out rate)
-                ? rate
-                : 0m;
+            return numDiscountPercent == null ? 0m : numDiscountPercent.Value;
         }
 
         private Label CreatePriceLabel(bool highlight = false)
@@ -617,17 +600,8 @@ namespace MediBillingPro.Desktop.Forms
                 numPurchasePrice.Minimum,
                 Math.Min(numPurchasePrice.Maximum, _existing.PurchasePrice));
 
-            string gstText = _existing.GstPercent.ToString("0.##") + "%";
-
-            if (cmbGstPercent.Items.Contains(gstText))
-            {
-                cmbGstPercent.SelectedItem = gstText;
-            }
-            else
-            {
-                cmbGstPercent.Items.Add(gstText);
-                cmbGstPercent.SelectedItem = gstText;
-            }
+            numDiscountPercent.Value = Math.Max(numDiscountPercent.Minimum,
+                Math.Min(numDiscountPercent.Maximum, _existing.GstPercent));
 
             _loadingPricing = false;
             RecalculatePrices();
