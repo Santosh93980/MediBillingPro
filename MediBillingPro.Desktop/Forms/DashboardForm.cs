@@ -123,34 +123,11 @@ namespace MediBillingPro.Desktop.Forms
             };
 
             AddNavigation("Dashboard", "▦", ShowDashboard);
+            // Only expose modules that are currently implemented and ready for daily use.
+            AddNavigation("Medicine Inventory", "▤", () => OpenModule(new MedicineForm(), "Medicine Inventory"));
+            AddNavigation("Suppliers", "♙", () => OpenModule(new SupplierForm(), "Suppliers"));
             if (_session == null || _session.IsAdmin)
-            {
-                AddNavigation("Medicine Inventory", "▤", () => OpenModule(new MedicineForm(), "Medicine Inventory"));
-                AddNavigation("Suppliers", "♙", () => OpenModule(new SupplierForm(), "Suppliers"));
-                AddNavigation("Purchases", "▣", () => OpenModule(new OperationsForm("Purchases"), "Purchases"));
-                AddNavigation("Counter Billing", "▤", () => OpenModule(new PharmacistCounterForm(_session), "Counter Billing"));
-                AddNavigation("Sales & Billing", "▤", () => OpenModule(new OperationsForm("Sales & Billing"), "Sales & Billing"));
-                AddNavigation("Customers", "♙", () => OpenModule(new OperationsForm("Customers"), "Customers"));
-                AddNavigation("Stock & Batches", "▦", () => OpenModule(new OperationsForm("Stock & Batches"), "Stock & Batches"));
-                AddNavigation("Reports", "▥", () => OpenModule(new OperationsForm("Reports"), "Reports"));
-                AddNavigation("Settings", "⚙", () => OpenModule(new OperationsForm("Settings"), "Settings"));
                 AddNavigation("User Management", "♙", () => OpenModule(new UserManagementForm(), "User Management"));
-            }
-            else if (_session.IsPharmacist || _session.Role == "Cashier")
-            {
-                AddNavigation("Counter Billing", "▤", () => OpenModule(new PharmacistCounterForm(_session), "Counter Billing"));
-                AddNavigation("Customers", "♙", () => OpenModule(new OperationsForm("Customers"), "Customers"));
-                if (_session.IsPharmacist)
-                    AddNavigation("Stock & Batches", "▦", () => OpenModule(new OperationsForm("Stock & Batches"), "Stock & Batches"));
-            }
-            else if (_session.Role == "Inventory Manager")
-            {
-                AddNavigation("Medicine Inventory", "▤", () => OpenModule(new MedicineForm(), "Medicine Inventory"));
-                AddNavigation("Suppliers", "♙", () => OpenModule(new SupplierForm(), "Suppliers"));
-                AddNavigation("Purchases", "▣", () => OpenModule(new OperationsForm("Purchases"), "Purchases"));
-                AddNavigation("Stock & Batches", "▦", () => OpenModule(new OperationsForm("Stock & Batches"), "Stock & Batches"));
-                AddNavigation("Reports", "▥", () => OpenModule(new OperationsForm("Reports"), "Reports"));
-            }
 
             _logoutButton = CreateNavigationButton("⇥   Logout");
             _logoutButton.Dock = DockStyle.Bottom;
