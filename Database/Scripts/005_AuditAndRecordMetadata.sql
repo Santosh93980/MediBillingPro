@@ -103,8 +103,9 @@ BEGIN
   UpdatedBy=@uname, UpdatedDate=@now
  FROM dbo.'+QUOTENAME(@t)+N' target
  JOIN inserted i ON target.'+QUOTENAME(@pk)+N'=i.'+QUOTENAME(@pk)+N';
- INSERT dbo.AuditLogs(ActionedBy,ActionedByUserId,ActionedOn,ScreenName,Activity,ActivityType,Details,Category)
- SELECT @uname,@uid,@now,@screen,
+ INSERT dbo.AuditLogs(Action,ActionedBy,ActionedByUserId,ActionedOn,ScreenName,Activity,ActivityType,Details,Category)
+ SELECT CASE WHEN EXISTS(SELECT 1 FROM inserted) AND EXISTS(SELECT 1 FROM deleted) THEN N''Update'' WHEN EXISTS(SELECT 1 FROM inserted) THEN N''Create'' ELSE N''Delete'' END,
+  @uname,@uid,@now,@screen,
   N'''+REPLACE(@t,'''','''''')+N' ''+CASE WHEN EXISTS(SELECT 1 FROM inserted) AND EXISTS(SELECT 1 FROM deleted) THEN N''updated''
     WHEN EXISTS(SELECT 1 FROM inserted) THEN N''created'' ELSE N''deleted'' END,
   CASE WHEN EXISTS(SELECT 1 FROM inserted) AND EXISTS(SELECT 1 FROM deleted) THEN N''Update''
