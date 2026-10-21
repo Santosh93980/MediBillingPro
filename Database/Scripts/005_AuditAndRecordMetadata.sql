@@ -20,6 +20,8 @@ BEGIN
  CREATE INDEX IX_AuditLogs_Category_ActionedOn ON dbo.AuditLogs(Category,ActionedOn DESC);
  CREATE INDEX IX_AuditLogs_ActionedBy ON dbo.AuditLogs(ActionedBy);
 END;
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AuditLogs') AND name=N'IX_AuditLogs_Category_ActionedOn') CREATE INDEX IX_AuditLogs_Category_ActionedOn ON dbo.AuditLogs(Category,ActionedOn DESC);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AuditLogs') AND name=N'IX_AuditLogs_ActionedBy') CREATE INDEX IX_AuditLogs_ActionedBy ON dbo.AuditLogs(ActionedBy);
 GO
 
 /* Apply the standard four metadata fields to existing business tables. */
