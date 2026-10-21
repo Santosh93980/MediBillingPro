@@ -49,7 +49,7 @@ namespace MediBillingPro.Desktop.Forms
             }
         }
 
-        private SqlConnection OpenConnection(){var c=new SqlConnection(_cs);c.Open();return c;}
+        private SqlConnection OpenConnection(){var c=new SqlConnection(_cs);c.Open();AuditService.SetContext(c,"Counter Billing");return c;}
 
         private void BuildCart()
         {
