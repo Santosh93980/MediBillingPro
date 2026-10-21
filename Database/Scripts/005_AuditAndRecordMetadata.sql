@@ -31,9 +31,9 @@ IF COL_LENGTH(N'dbo.AuditLogs',N'Category') IS NULL
     ALTER TABLE dbo.AuditLogs ADD Category NVARCHAR(30) NOT NULL CONSTRAINT DF_AuditLogs_Category_Repair DEFAULT(N'Operations') WITH VALUES;
 
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AuditLogs') AND name=N'IX_AuditLogs_Category_ActionedOn')
-    CREATE INDEX IX_AuditLogs_Category_ActionedOn ON dbo.AuditLogs(Category,ActionedOn DESC);
+    EXEC sys.sp_executesql N'CREATE INDEX IX_AuditLogs_Category_ActionedOn ON dbo.AuditLogs(Category,ActionedOn DESC);';
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AuditLogs') AND name=N'IX_AuditLogs_ActionedBy')
-    CREATE INDEX IX_AuditLogs_ActionedBy ON dbo.AuditLogs(ActionedBy);
+    EXEC sys.sp_executesql N'CREATE INDEX IX_AuditLogs_ActionedBy ON dbo.AuditLogs(ActionedBy);'
 GO
 
 /* Apply the standard four metadata fields to existing business tables. */
