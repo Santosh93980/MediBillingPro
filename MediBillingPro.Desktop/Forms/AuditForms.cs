@@ -14,7 +14,7 @@ namespace MediBillingPro.Desktop.Forms
         private static UserSession _session;
         internal static int? CurrentUserId { get { return _session == null ? (int?)null : _session.UserId; } }
         internal static string CurrentUserName { get { return _session == null ? "SYSTEM" : _session.UserName; } }
-        internal static void SetSession(UserSession session) { _session = session; }
+        internal static void SetSession(UserSession session) { _session = session; MediBillingPro.Domain.Security.CurrentUserContext.Set(session == null ? (int?)null : session.UserId, session == null ? "SYSTEM" : session.UserName); }
 
         internal static void SetContext(SqlConnection connection, string screenName)
         {
@@ -207,14 +207,14 @@ CASE WHEN @screen IN ('Login','User Management','Role Management','Administratio
                 using(var cn=new SqlConnection(UserAccess.ConnectionString))
                 using(var cmd=new SqlCommand(@"SELECT AuditLogId,ActionedBy,ActionedOn,ScreenName,Activity,ActivityType,Details,Category
 FROM dbo.AuditLogs
-WHERE Category=@cat AND ActionedOn>=@from AND ActionedOn<DATEADD(day,1,@to)
+WHERE Category=@cat AND ActionedOn>=@from AND ActionedOn<@toExclusive
 AND (@by='' OR ActionedBy LIKE @byLike) AND (@screen='' OR ScreenName LIKE @screenLike)
 AND (@activity='' OR Activity LIKE @activityLike) AND (@type='' OR ActivityType LIKE @typeLike)
 ORDER BY ActionedOn DESC",cn))
                 using(var da=new SqlDataAdapter(cmd)){
                     cmd.Parameters.Add("@cat",SqlDbType.NVarChar,30).Value=_category;
                     cmd.Parameters.Add("@from",SqlDbType.DateTime2).Value=_from.Value.Date.ToUniversalTime();
-                    cmd.Parameters.Add("@to",SqlDbType.DateTime2).Value=_to.Value.Date.ToUniversalTime();
+                    cmd.Parameters.Add("@toExclusive",SqlDbType.DateTime2).Value=_to.Value.Date.AddDays(1).ToUniversalTime();
                     AddFilter(cmd,"by",_actionedBy.Text);AddFilter(cmd,"screen",_screen.Text);AddFilter(cmd,"activity",_activity.Text);AddFilter(cmd,"type",_type.Text);
                     var dt=new DataTable();da.Fill(dt);_grid.DataSource=dt;_count.Text=dt.Rows.Count+" records";
                     if(_grid.Columns.Contains("AuditLogId"))_grid.Columns["AuditLogId"].Visible=false;
