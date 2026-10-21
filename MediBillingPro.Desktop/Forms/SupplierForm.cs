@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediBillingPro.Desktop.UI.Common;
+using MediBillingPro.Desktop.Forms;
 
 namespace MediBillingPro.Desktop.Forms
 {
@@ -164,6 +165,24 @@ namespace MediBillingPro.Desktop.Forms
                 Name = "ViewMedicines",
                 HeaderText = "View",
                 Text = "👁",
+                UseColumnTextForButtonValue = true,
+                FillWeight = 55,
+                FlatStyle = FlatStyle.Flat
+            });
+            grid.Columns.Add(new DataGridViewButtonColumn
+            {
+                Name = "ViewRecord",
+                HeaderText = "Details",
+                Text = "View",
+                UseColumnTextForButtonValue = true,
+                FillWeight = 55,
+                FlatStyle = FlatStyle.Flat
+            });
+            grid.Columns.Add(new DataGridViewButtonColumn
+            {
+                Name = "PrintRecord",
+                HeaderText = "Print",
+                Text = "Print",
                 UseColumnTextForButtonValue = true,
                 FillWeight = 55,
                 FlatStyle = FlatStyle.Flat
@@ -391,7 +410,38 @@ namespace MediBillingPro.Desktop.Forms
                 {
                     form.ShowDialog(this);
                 }
+                return;
+            }
 
+            if (columnName == "ViewRecord")
+            {
+                string details = "Supplier: " + supplier.SupplierName +
+                    "\nContact person: " + supplier.ContactPerson +
+                    "\nMobile: " + supplier.MobileNumber +
+                    "\nEmail: " + supplier.Email +
+                    "\nGSTIN: " + supplier.GSTIN +
+                    "\nLicense: " + supplier.LicenseNumber +
+                    "\nAddress: " + supplier.Address +
+                    "\nMedicine count: " + supplier.MedicineCount;
+                MessageBox.Show(this, details, "Supplier Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (columnName == "PrintRecord")
+            {
+                var dt = new DataTable("Supplier");
+                dt.Columns.Add("Field"); dt.Columns.Add("Value");
+                dt.Rows.Add("Supplier ID", supplier.SupplierId.ToString());
+                dt.Rows.Add("Supplier Name", supplier.SupplierName ?? "");
+                dt.Rows.Add("Contact Person", supplier.ContactPerson ?? "");
+                dt.Rows.Add("Mobile Number", supplier.MobileNumber ?? "");
+                dt.Rows.Add("Email", supplier.Email ?? "");
+                dt.Rows.Add("GSTIN", supplier.GSTIN ?? "");
+                dt.Rows.Add("License Number", supplier.LicenseNumber ?? "");
+                dt.Rows.Add("Address", supplier.Address ?? "");
+                dt.Rows.Add("Medicine Count", supplier.MedicineCount.ToString());
+                var reportGrid = new DataGridView { DataSource = dt, AutoGenerateColumns = true };
+                ReportOutput.Show(this, reportGrid, "Supplier Record");
                 return;
             }
 
