@@ -253,6 +253,37 @@ namespace MediBillingPro.Desktop.Forms
                 var gst = AddMoney(p, 4, 0, "GST %");
                 var supplierInvoice = AddText(p, 4, 2, "Supplier invoice #");
 
+                // Reuse the medicine master prices to reduce duplicate typing on purchase entry.
+                medicine.SelectedIndexChanged += (s, e) =>
+                {
+                    if (medicine.SelectedValue == null || medicine.SelectedValue == DBNull.Value)
+                        return;
+                    int medicineId;
+                    if (!int.TryParse(Convert.ToString(medicine.SelectedValue), out medicineId) || medicineId <= 0)
+                        return;
+                    try
+                    {
+                        using (var cn = OpenConnection())
+                        using (var cmd = new SqlCommand(@"SELECT PurchasePrice, SellingPrice FROM dbo.Medicines WHERE MedicineId=@id AND IsActive=1", cn))
+                        {
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = medicineId;
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                if (reader.Read())
+                                {
+                                    buyPrice.Value = Math.Max(buyPrice.Minimum, Math.Min(buyPrice.Maximum, Convert.ToDecimal(reader["PurchasePrice"])));
+                                    sellPrice.Value = Math.Max(sellPrice.Minimum, Math.Min(sellPrice.Maximum, Convert.ToDecimal(reader["SellingPrice"])));
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Could not load the saved medicine prices. You can enter them manually.\\n" + ex.Message,
+                            "Purchase entry", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                };
+
                 var cart = new DataTable();
                 cart.Columns.Add("MedicineId", typeof(int));
                 cart.Columns.Add("Medicine", typeof(string));
