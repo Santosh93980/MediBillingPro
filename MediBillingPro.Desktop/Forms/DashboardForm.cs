@@ -123,11 +123,17 @@ namespace MediBillingPro.Desktop.Forms
             };
 
             AddNavigation("Dashboard", "▦", ShowDashboard);
-            // Only expose modules that are currently implemented and ready for daily use.
-            AddNavigation("Medicine Inventory", "▤", () => OpenModule(new MedicineForm(), "Medicine Inventory"));
-            AddNavigation("Suppliers", "♙", () => OpenModule(new SupplierForm(), "Suppliers"));
             if (_session == null || _session.IsAdmin)
+            {
+                AddNavigation("Medicine Inventory", "▤", () => OpenModule(new MedicineForm(), "Medicine Inventory"));
+                AddNavigation("Suppliers", "♙", () => OpenModule(new SupplierForm(), "Suppliers"));
                 AddNavigation("User Management", "♙", () => OpenModule(new UserManagementForm(), "User Management"));
+            }
+            else if (_session.IsPharmacist || _session.Role == "Inventory Manager")
+            {
+                AddNavigation("Medicine Inventory", "▤", () => OpenModule(new MedicineForm(), "Medicine Inventory"));
+                AddNavigation("Suppliers", "♙", () => OpenModule(new SupplierForm(), "Suppliers"));
+            }
 
             _logoutButton = CreateNavigationButton("⇥   Logout");
             _logoutButton.Dock = DockStyle.Bottom;
@@ -394,10 +400,13 @@ namespace MediBillingPro.Desktop.Forms
                 Margin = new Padding(0, 0, 0, 8),
                 Padding = new Padding(6)
             };
-            quickActions.Controls.Add(CreateActionButton("Open Medicine Inventory", () =>
-                OpenModule(new MedicineForm(), "Medicine Inventory")));
-            quickActions.Controls.Add(CreateActionButton("Manage Suppliers", () =>
-                OpenModule(new SupplierForm(), "Suppliers")));
+            if (_session == null || _session.IsAdmin || _session.IsPharmacist || _session.Role == "Inventory Manager")
+            {
+                quickActions.Controls.Add(CreateActionButton("Open Medicine Inventory", () =>
+                    OpenModule(new MedicineForm(), "Medicine Inventory")));
+                quickActions.Controls.Add(CreateActionButton("Manage Suppliers", () =>
+                    OpenModule(new SupplierForm(), "Suppliers")));
+            }
             if (_session == null || _session.IsAdmin)
                 quickActions.Controls.Add(CreateActionButton("Create / manage users", () =>
                     OpenModule(new UserManagementForm(), "User Management")));
