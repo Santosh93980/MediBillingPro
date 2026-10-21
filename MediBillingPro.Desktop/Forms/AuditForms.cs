@@ -133,7 +133,7 @@ CASE WHEN @screen IN ('Login','User Management','Role Management','Administratio
                 MessageBox.Show("Export saved successfully.","Export",MessageBoxButtons.OK,MessageBoxIcon.Information);
             }
         }
-        private static string Csv(string s) { return "\"" + (s??"").Replace("\"","""""") + "\""; }
+        private static string Csv(string s) { return "\"" + (s ?? "").Replace("\"", "\"\"") + "\""; }
         private static void ExportWord(DataGridView grid, string title)
         {
             using(var save=new SaveFileDialog { Filter="Word document (*.doc)|*.doc", FileName=SafeName(title)+"_"+DateTime.Now.ToString("yyyyMMdd_HHmm")+".doc", AddExtension=true })
