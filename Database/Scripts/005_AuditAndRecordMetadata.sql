@@ -27,7 +27,7 @@ GO
 /* Apply the standard four metadata fields to existing business tables. */
 DECLARE @tables TABLE(TableName SYSNAME);
 INSERT INTO @tables(TableName) VALUES
-(N'AppUsers'),(N'Roles'),(N'Medicines'),(N'Suppliers'),(N'MedicineBatches'),
+(N'AppUsers'),(N'Users'),(N'Roles'),(N'Medicines'),(N'Suppliers'),(N'MedicineBatches'),
 (N'Customers'),(N'Invoices'),(N'InvoiceItems'),(N'Purchases'),(N'PurchaseItems'),(N'AppSettings');
 DECLARE @t SYSNAME, @obj INT, @pk SYSNAME, @sql NVARCHAR(MAX), @trigger SYSNAME, @createdByType INT, @createdBySet NVARCHAR(300);
 DECLARE table_cursor CURSOR LOCAL FAST_FORWARD FOR SELECT TableName FROM @tables;
@@ -83,7 +83,7 @@ BEGIN
   CASE WHEN EXISTS(SELECT 1 FROM inserted) AND EXISTS(SELECT 1 FROM deleted) THEN N''Update''
     WHEN EXISTS(SELECT 1 FROM inserted) THEN N''Create'' ELSE N''Delete'' END,
   CASE WHEN EXISTS(SELECT 1 FROM inserted) THEN (SELECT * FROM inserted FOR JSON PATH) ELSE (SELECT * FROM deleted FOR JSON PATH) END,
-  CASE WHEN N'''+@t+N''' IN (N''AppUsers'',N''Roles'',N''AppSettings'') THEN N''Administration'' ELSE N''Operations'' END;
+  CASE WHEN N'''+@t+N''' IN (N''AppUsers'',N''Users'',N''Roles'',N''AppSettings'') THEN N''Administration'' ELSE N''Operations'' END;
 END;';
    EXEC sys.sp_executesql @sql;
   END
@@ -96,7 +96,7 @@ GO
 
 /* Backfill creation metadata for existing records without inventing a user. */
 DECLARE @backfill TABLE(TableName SYSNAME);
-INSERT INTO @backfill VALUES(N'AppUsers'),(N'Roles'),(N'Medicines'),(N'Suppliers'),(N'MedicineBatches'),(N'Customers'),(N'Invoices'),(N'InvoiceItems'),(N'Purchases'),(N'PurchaseItems'),(N'AppSettings');
+INSERT INTO @backfill VALUES(N'AppUsers'),(N'Users'),(N'Roles'),(N'Medicines'),(N'Suppliers'),(N'MedicineBatches'),(N'Customers'),(N'Invoices'),(N'InvoiceItems'),(N'Purchases'),(N'PurchaseItems'),(N'AppSettings');
 DECLARE @bt SYSNAME, @bsql NVARCHAR(MAX);
 DECLARE backfill_cursor CURSOR LOCAL FAST_FORWARD FOR SELECT TableName FROM @backfill;
 OPEN backfill_cursor; FETCH NEXT FROM backfill_cursor INTO @bt;
