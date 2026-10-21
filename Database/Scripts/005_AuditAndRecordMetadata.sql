@@ -58,7 +58,7 @@ BEGIN
   IF @pk IS NOT NULL
   BEGIN
    SELECT @createdByType=system_type_id FROM sys.columns WHERE object_id=@obj AND name=N'CreatedBy';
-   SET @createdBySet=CASE WHEN @createdByType IN (48,52,56,127) THEN N'' ELSE N'CreatedBy=COALESCE(target.CreatedBy,@uname),' END;
+   SET @createdBySet=CASE WHEN @createdByType IN (48,52,56,127) THEN N'' ELSE N'CreatedBy=CASE WHEN EXISTS(SELECT 1 FROM deleted) THEN target.CreatedBy ELSE COALESCE(target.CreatedBy,@uname) END,' END;
    SET @trigger=N'trg_Audit_'+@t;
    SET @sql=N'CREATE OR ALTER TRIGGER dbo.'+QUOTENAME(@trigger)+N' ON dbo.'+QUOTENAME(@t)+N'
 AFTER INSERT, UPDATE, DELETE
@@ -70,9 +70,9 @@ BEGIN
  DECLARE @screen NVARCHAR(150)=COALESCE(CONVERT(NVARCHAR(150),SESSION_CONTEXT(N''ScreenName'')),N''Unattributed database operation'');
  DECLARE @now DATETIME2=SYSUTCDATETIME();
  UPDATE target SET
-  CreatedByName=COALESCE(target.CreatedByName,@uname),
+  CreatedByName=CASE WHEN EXISTS(SELECT 1 FROM deleted) THEN target.CreatedByName ELSE COALESCE(target.CreatedByName,@uname) END,
   '+@createdBySet+N'
-  CreatedDate=COALESCE(target.CreatedDate,@now),
+  CreatedDate=CASE WHEN EXISTS(SELECT 1 FROM deleted) THEN target.CreatedDate ELSE COALESCE(target.CreatedDate,@now) END,
   UpdatedBy=@uname, UpdatedDate=@now
  FROM dbo.'+QUOTENAME(@t)+N' target
  JOIN inserted i ON target.'+QUOTENAME(@pk)+N'=i.'+QUOTENAME(@pk)+N';
