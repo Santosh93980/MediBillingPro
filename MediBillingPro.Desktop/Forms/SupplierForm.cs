@@ -106,7 +106,7 @@ namespace MediBillingPro.Desktop.Forms
             var toolbar = new Panel { Dock = DockStyle.Fill, Padding = new Padding(24, 16, 24, 12), BackColor = page };
             txtSearch = new TextBox
             {
-                PlaceholderText = "Search supplier name or mobile number...",
+
                 Font = new Font("Segoe UI", 10),
                 Width = 360,
                 Location = new Point(24, 24),
