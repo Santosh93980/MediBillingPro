@@ -229,7 +229,7 @@ FROM dbo.AppUsers WHERE UserName=@u AND PasswordHash=@p AND IsActive=1", cn))
             var toggle = MakeButton("Enable / Disable", MediBillingTheme.Secondary);
             var refresh = MakeButton("Refresh", Color.FromArgb(241,245,249)); refresh.ForeColor = MediBillingTheme.Secondary;
             var print = MakeButton("Print / Export", MediBillingTheme.Primary);
-            _search.Width=220; _search.Height=32; _search.Margin=new Padding(4,7,4,4); _search.PlaceholderText="Search name, username, mobile";
+            _search.Width=220; _search.Height=32; _search.Margin=new Padding(4,7,4,4); new ToolTip().SetToolTip(_search,"Search name, username or mobile");
             add.Click += (s,e)=>EditUser(null); edit.Click += (s,e)=>EditSelected(); toggle.Click += (s,e)=>ToggleUser(); refresh.Click += (s,e)=>LoadUsers();
             _search.TextChanged += (s,e)=>LoadUsers();
             print.Click += (s,e)=>ReportOutput.Show(this,_grid,"User Management");
