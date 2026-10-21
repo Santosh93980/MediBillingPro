@@ -394,34 +394,13 @@ namespace MediBillingPro.Desktop.Forms
                 Margin = new Padding(0, 0, 0, 8),
                 Padding = new Padding(6)
             };
-            if (_session != null && (_session.IsPharmacist || _session.Role == "Cashier"))
-            {
-                quickActions.Controls.Add(CreateActionButton("Start Counter Billing", () =>
-                    OpenModule(new PharmacistCounterForm(_session), "Counter Billing")));
-                quickActions.Controls.Add(CreateActionButton("Find Customer", () =>
-                    OpenModule(new OperationsForm("Customers"), "Customers")));
-                if (_session.IsPharmacist)
-                    quickActions.Controls.Add(CreateActionButton("Check Stock & Batches", () =>
-                        OpenModule(new OperationsForm("Stock & Batches"), "Stock & Batches")));
-            }
-            else
-            {
-                quickActions.Controls.Add(CreateActionButton("Purchase Entry", () =>
-                    OpenModule(new OperationsForm("Purchases"), "Purchases")));
-                quickActions.Controls.Add(CreateActionButton("Start Counter Billing", () =>
-                    OpenModule(new PharmacistCounterForm(_session ?? new UserSession(0, "admin", "Pharmacy Admin", "Admin")), "Counter Billing")));
-                quickActions.Controls.Add(CreateActionButton("Open Medicine Inventory", () =>
-                    OpenModule(new MedicineForm(), "Medicine Inventory")));
-                quickActions.Controls.Add(CreateActionButton("Manage Suppliers", () =>
-                    OpenModule(new SupplierForm(), "Suppliers")));
-                quickActions.Controls.Add(CreateActionButton("Customers", () =>
-                    OpenModule(new OperationsForm("Customers"), "Customers")));
-                quickActions.Controls.Add(CreateActionButton("Stock & Reports", () =>
-                    OpenModule(new OperationsForm("Stock & Batches"), "Stock & Batches")));
-                if (_session == null || _session.IsAdmin)
-                    quickActions.Controls.Add(CreateActionButton("Create / manage users", () =>
-                        OpenModule(new UserManagementForm(), "User Management")));
-            }
+            quickActions.Controls.Add(CreateActionButton("Open Medicine Inventory", () =>
+                OpenModule(new MedicineForm(), "Medicine Inventory")));
+            quickActions.Controls.Add(CreateActionButton("Manage Suppliers", () =>
+                OpenModule(new SupplierForm(), "Suppliers")));
+            if (_session == null || _session.IsAdmin)
+                quickActions.Controls.Add(CreateActionButton("Create / manage users", () =>
+                    OpenModule(new UserManagementForm(), "User Management")));
             page.Controls.Add(quickActions);
 
             var info = new Panel
