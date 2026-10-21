@@ -188,7 +188,7 @@ FROM dbo.AppUsers WHERE UserName=@u AND PasswordHash=@p AND IsActive=1", cn))
             if (string.IsNullOrWhiteSpace(_username.Text) || string.IsNullOrEmpty(_password.Text)) { MessageBox.Show("Enter both username and password."); return; }
             try {
                 Session = UserAccess.Authenticate(_username.Text, _password.Text);
-                if (Session == null) { MessageBox.Show("Username or password is incorrect, or the account is inactive.", "Sign in failed", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+                if (Session == null) { AuditService.Write("Login", "Failed login attempt", "Security", "Username="+_username.Text.Trim()); MessageBox.Show("Username or password is incorrect, or the account is inactive.", "Sign in failed", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
                 DialogResult = DialogResult.OK; Close();
             } catch(Exception ex) { MessageBox.Show(ex.Message, "Sign in failed", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
@@ -209,10 +209,12 @@ FROM dbo.AppUsers WHERE UserName=@u AND PasswordHash=@p AND IsActive=1", cn))
             var edit = MakeButton("Edit selected", MediBillingTheme.Secondary);
             var toggle = MakeButton("Enable / Disable", MediBillingTheme.Secondary);
             var refresh = MakeButton("Refresh", Color.FromArgb(241,245,249)); refresh.ForeColor = MediBillingTheme.Secondary;
+            var print = MakeButton("Print / Export", MediBillingTheme.Primary);
             _search.Width=220; _search.Height=32; _search.Margin=new Padding(4,7,4,4); _search.PlaceholderText="Search name, username, mobile";
             add.Click += (s,e)=>EditUser(null); edit.Click += (s,e)=>EditSelected(); toggle.Click += (s,e)=>ToggleUser(); refresh.Click += (s,e)=>LoadUsers();
             _search.TextChanged += (s,e)=>LoadUsers();
-            actions.Controls.Add(add); actions.Controls.Add(edit); actions.Controls.Add(toggle); actions.Controls.Add(refresh); actions.Controls.Add(_search); root.Controls.Add(actions,0,1);
+            print.Click += (s,e)=>ReportOutput.Show(this,_grid,"User Management");
+            actions.Controls.Add(add); actions.Controls.Add(edit); actions.Controls.Add(toggle); actions.Controls.Add(refresh); actions.Controls.Add(print); actions.Controls.Add(_search); root.Controls.Add(actions,0,1);
             _grid.Dock=DockStyle.Fill; _grid.ReadOnly=true; _grid.AllowUserToAddRows=false; _grid.AutoSizeColumnsMode=DataGridViewAutoSizeColumnsMode.Fill;
             _grid.SelectionMode=DataGridViewSelectionMode.FullRowSelect; _grid.MultiSelect=false; _grid.BackgroundColor=Color.White; _grid.RowHeadersVisible=false;
             MediBillingPro.Desktop.UI.Common.UiStyle.StyleGrid(_grid);
@@ -276,7 +278,8 @@ ORDER BY FirstName,LastName",cn))
             if(MessageBox.Show("Change the selected user's active status?","Confirm",MessageBoxButtons.YesNo,MessageBoxIcon.Question)!=DialogResult.Yes) return;
             using(var cn=new SqlConnection(UserAccess.ConnectionString))
             using(var cmd=new SqlCommand("UPDATE dbo.AppUsers SET IsActive=CASE WHEN IsActive=1 THEN 0 ELSE 1 END WHERE UserId=@id",cn))
-            { cmd.Parameters.Add("@id",SqlDbType.Int).Value=id; cn.Open(); cmd.ExecuteNonQuery(); }
+            { cn.Open(); AuditService.SetContext(cn,"User Management"); cmd.Parameters.Add("@id",SqlDbType.Int).Value=id; cmd.ExecuteNonQuery(); }
+            AuditService.Write("User Management", "Changed active status for user "+name, "Status change", "UserId="+id);
             LoadUsers();
         }
     }
@@ -366,6 +369,7 @@ ORDER BY FirstName,LastName",cn))
             try {
                 using(var cn=new SqlConnection(UserAccess.ConnectionString)) {
                     cn.Open();
+                    AuditService.SetContext(cn,"User Management");
                     string sql;
                     if(_existing==null) sql=@"INSERT dbo.AppUsers(UserName,DisplayName,PasswordHash,RoleName,FirstName,LastName,MobileNumber,Email,[Address],PharmacyName,PharmacyAddress,PharmacyLicenseNumber,PharmacyGSTIN,IsActive)
 VALUES(@u,@d,@p,@r,@f,@l,@m,@e,@a,@pn,@pa,@pl,@pg,@active)";
@@ -389,6 +393,7 @@ VALUES(@u,@d,@p,@r,@f,@l,@m,@e,@a,@pn,@pa,@pl,@pg,@active)";
                         cmd.ExecuteNonQuery();
                     }
                 }
+                AuditService.Write("User Management", (_existing==null?"Created user ":"Updated user ")+un, _existing==null?"Create":"Update", "Role="+roleName+"; Mobile="+mob);
                 DialogResult=DialogResult.OK; Close();
             } catch(Exception ex) { MessageBox.Show("Could not save user. Check that the username is unique and the values are valid.\n\n"+ex.Message,"Save user",MessageBoxButtons.OK,MessageBoxIcon.Error); }
         }
