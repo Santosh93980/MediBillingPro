@@ -237,6 +237,7 @@ FROM dbo.AppUsers WHERE UserName=@u AND PasswordHash=@p AND IsActive=1", cn))
             _grid.Dock=DockStyle.Fill; _grid.ReadOnly=true; _grid.AllowUserToAddRows=false; _grid.AutoSizeColumnsMode=DataGridViewAutoSizeColumnsMode.Fill;
             _grid.SelectionMode=DataGridViewSelectionMode.FullRowSelect; _grid.MultiSelect=false; _grid.BackgroundColor=Color.White; _grid.RowHeadersVisible=false;
             MediBillingPro.Desktop.UI.Common.UiStyle.StyleGrid(_grid);
+            _grid.CellContentClick += UserGrid_CellContentClick;
             root.Controls.Add(_grid,0,2); Controls.Add(root); LoadUsers();
         }
 
@@ -266,7 +267,89 @@ ORDER BY FirstName,LastName",cn))
                 if(_grid.Columns.Contains("CreatedDate")) _grid.Columns["CreatedDate"].DefaultCellStyle.Format="dd MMM yyyy HH:mm";
                 if(_grid.Columns.Contains("UpdatedDate")) _grid.Columns["UpdatedDate"].DefaultCellStyle.Format="dd MMM yyyy HH:mm";
                 if(_grid.Columns.Contains("AccountStatus")) _grid.Columns["AccountStatus"].HeaderText="Status";
+                AddRowActionColumn("RowView", "View");
+                AddRowActionColumn("RowEdit", "Edit");
+                AddRowActionColumn("RowDelete", "Delete");
+                AddRowActionColumn("RowPrint", "Print");
+                _grid.Columns["RowView"].DisplayIndex = _grid.Columns.Count - 4;
+                _grid.Columns["RowEdit"].DisplayIndex = _grid.Columns.Count - 3;
+                _grid.Columns["RowDelete"].DisplayIndex = _grid.Columns.Count - 2;
+                _grid.Columns["RowPrint"].DisplayIndex = _grid.Columns.Count - 1;
+                _grid.Columns["RowView"].Width = 58;
+                _grid.Columns["RowEdit"].Width = 58;
+                _grid.Columns["RowDelete"].Width = 64;
+                _grid.Columns["RowPrint"].Width = 58;
+                foreach (string actionColumn in new[] { "RowView", "RowEdit", "RowDelete", "RowPrint" })
+                    _grid.Columns[actionColumn].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
             } catch(Exception ex) { MessageBox.Show("Unable to load users.\n"+ex.Message,"User management",MessageBoxButtons.OK,MessageBoxIcon.Error); }
+        }
+
+        private void AddRowActionColumn(string name, string label)
+        {
+            if (_grid.Columns.Contains(name)) return;
+            _grid.Columns.Add(new DataGridViewButtonColumn
+            {
+                Name = name,
+                HeaderText = label,
+                Text = label,
+                UseColumnTextForButtonValue = true,
+                FlatStyle = FlatStyle.Flat,
+                Width = 60,
+                MinimumWidth = 54,
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            });
+        }
+
+        private void UserGrid_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0 || _grid.CurrentRow == null) return;
+            string action = _grid.Columns[e.ColumnIndex].Name;
+            if (action != "RowView" && action != "RowEdit" && action != "RowDelete" && action != "RowPrint") return;
+            int id = Convert.ToInt32(_grid.Rows[e.RowIndex].Cells["UserId"].Value);
+            if (action == "RowEdit") { EditUser(id); return; }
+            if (action == "RowDelete")
+            {
+                var answer = MessageBox.Show(this,
+                    "Disable this user account? The account and its audit history will be retained.",
+                    "Confirm user removal", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button2);
+                if (answer == DialogResult.Yes) ToggleUserById(id);
+                return;
+            }
+            if (action == "RowView")
+            {
+                var row = _grid.Rows[e.RowIndex];
+                string[] fields = { "UserName", "FirstName", "LastName", "MobileNumber", "Email", "RoleName", "PharmacyName", "AccountStatus", "CreatedByName", "CreatedDate", "UpdatedBy", "UpdatedDate" };
+                var sb = new StringBuilder();
+                foreach (string field in fields)
+                    if (_grid.Columns.Contains(field)) sb.AppendLine(field + ": " + Convert.ToString(row.Cells[field].Value));
+                MessageBox.Show(this, sb.ToString(), "User Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if (action == "RowPrint")
+            {
+                var dt = new DataTable("User");
+                foreach (DataGridViewColumn col in _grid.Columns)
+                    if (col.Visible && !col.Name.StartsWith("Row", StringComparison.Ordinal)) dt.Columns.Add(col.HeaderText);
+                var values = new System.Collections.Generic.List<object>();
+                foreach (DataGridViewColumn col in _grid.Columns)
+                    if (col.Visible && !col.Name.StartsWith("Row", StringComparison.Ordinal)) values.Add(_grid.Rows[e.RowIndex].Cells[col.Index].Value ?? DBNull.Value);
+                dt.Rows.Add(values.ToArray());
+                var reportGrid = new DataGridView { DataSource = dt, AutoGenerateColumns = true };
+                ReportOutput.Show(this, reportGrid, "User Record");
+            }
+        }
+
+        private void ToggleUserById(int id)
+        {
+            int rowIndex = -1;
+            foreach (DataGridViewRow row in _grid.Rows)
+                if (Convert.ToInt32(row.Cells["UserId"].Value) == id) { rowIndex = row.Index; break; }
+            if (rowIndex >= 0)
+            {
+                _grid.CurrentCell = _grid.Rows[rowIndex].Cells["UserName"];
+                ToggleUser();
+            }
         }
 
         private void EditSelected()
