@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
+using System.Configuration;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -28,6 +30,7 @@ namespace MediBillingPro.Desktop.Forms
         private TextBox txtCategory;
         private TextBox txtStrength;
         private ComboBox cmbUnit;
+        private ComboBox cmbSupplier;
         private NumericUpDown numReorderLevel;
         private CheckBox chkPrescription;
 
@@ -187,6 +190,18 @@ namespace MediBillingPro.Desktop.Forms
             });
 
             AddField(content, "Unit", cmbUnit);
+
+            cmbSupplier = new ComboBox
+            {
+                Dock = DockStyle.Fill,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Font = new Font("Segoe UI", 10F),
+                Margin = new Padding(3, 5, 3, 8),
+                DisplayMember = "SupplierName",
+                ValueMember = "SupplierId"
+            };
+            LoadSupplierOptions();
+            AddField(content, "Supplier (optional)", cmbSupplier);
 
             numReorderLevel = new NumericUpDown
             {
@@ -399,6 +414,39 @@ namespace MediBillingPro.Desktop.Forms
         }
 
 
+        private void LoadSupplierOptions()
+        {
+            var suppliers = new DataTable();
+            suppliers.Columns.Add("SupplierId", typeof(int));
+            suppliers.Columns.Add("SupplierName", typeof(string));
+            suppliers.Rows.Add(0, "No supplier selected");
+
+            try
+            {
+                var setting = ConfigurationManager.ConnectionStrings["MediBillingProDB"];
+                if (setting != null && !string.IsNullOrWhiteSpace(setting.ConnectionString))
+                {
+                    using (var cn = new SqlConnection(setting.ConnectionString))
+                    using (var da = new SqlDataAdapter(
+                        "SELECT SupplierId, SupplierName FROM dbo.Suppliers WHERE IsActive=1 ORDER BY SupplierName", cn))
+                    {
+                        var active = new DataTable();
+                        da.Fill(active);
+                        foreach (DataRow row in active.Rows)
+                            suppliers.Rows.Add(Convert.ToInt32(row["SupplierId"]), Convert.ToString(row["SupplierName"]));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Suppliers could not be loaded. You can still save a medicine without a supplier.\\n" + ex.Message,
+                    "Supplier list", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            cmbSupplier.DataSource = suppliers;
+            cmbSupplier.SelectedValue = 0;
+        }
+
         private decimal GetDefaultMargin(string productType)
         {
             switch (productType)
@@ -602,6 +650,7 @@ namespace MediBillingPro.Desktop.Forms
 
             numDiscountPercent.Value = Math.Max(numDiscountPercent.Minimum,
                 Math.Min(numDiscountPercent.Maximum, _existing.GstPercent));
+            cmbSupplier.SelectedValue = _existing.SupplierId.HasValue ? (object)_existing.SupplierId.Value : 0;
 
             _loadingPricing = false;
             RecalculatePrices();
@@ -664,6 +713,9 @@ namespace MediBillingPro.Desktop.Forms
                 SellingPriceExcludingGst =  _calculatedTaxablePrice,
                 GstAmount = _calculatedGstAmount,
                 SellingPrice = _calculatedSellingPrice,
+                SupplierId = cmbSupplier.SelectedValue == null || Convert.ToInt32(cmbSupplier.SelectedValue) == 0
+                    ? (int?)null
+                    : Convert.ToInt32(cmbSupplier.SelectedValue)
             };
 
             DialogResult = DialogResult.OK;
