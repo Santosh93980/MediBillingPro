@@ -228,8 +228,9 @@ FROM dbo.AppUsers WHERE UserName=@u AND PasswordHash=@p AND IsActive=1", cn))
         {
             try {
                 using(var cn=new SqlConnection(UserAccess.ConnectionString))
-                using(var cmd=new SqlCommand(@"SELECT UserId,UserName,FirstName,LastName,MobileNumber,Email,RoleName,
+                using(var cmd=new SqlCommand(@"SELECT UserId,UserName,FirstName,LastName,MobileNumber,Email,[Address],RoleName,
 CASE WHEN PharmacyName IS NULL OR PharmacyName='' THEN '—' ELSE PharmacyName END PharmacyName,
+PharmacyAddress,PharmacyLicenseNumber,PharmacyGSTIN,
 CASE WHEN IsActive=1 THEN 'Active' ELSE 'Disabled' END AccountStatus,CreatedAt
 FROM dbo.AppUsers
 WHERE (@q='' OR UserName LIKE @like OR FirstName LIKE @like OR LastName LIKE @like OR MobileNumber LIKE @like OR Email LIKE @like)
