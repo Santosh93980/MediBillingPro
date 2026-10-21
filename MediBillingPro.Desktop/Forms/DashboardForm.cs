@@ -128,6 +128,8 @@ namespace MediBillingPro.Desktop.Forms
                 AddNavigation("Medicine Inventory", "▤", () => OpenModule(new MedicineForm(), "Medicine Inventory"));
                 AddNavigation("Suppliers", "♙", () => OpenModule(new SupplierForm(), "Suppliers"));
                 AddNavigation("User Management", "♙", () => OpenModule(new UserManagementForm(), "User Management"));
+                AddNavigation("Administration Audit", "▤", () => OpenModule(new AuditReportForm("Administration"), "Administration Audit"));
+                AddNavigation("Operations Audit", "▤", () => OpenModule(new AuditReportForm("Operations"), "Operations Audit"));
             }
             else if (_session.IsPharmacist || _session.Role == "Inventory Manager")
             {
@@ -144,6 +146,7 @@ namespace MediBillingPro.Desktop.Forms
             {
                 if (MessageBox.Show("Are you sure you want to log out?", "Confirm logout",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+                AuditService.Write("Login", "User logged out", "Logout", "UserId=" + (_session == null ? "unknown" : _session.UserId.ToString()));
                 WasLogoutRequested = true;
                 Close();
             };
