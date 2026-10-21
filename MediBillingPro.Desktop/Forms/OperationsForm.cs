@@ -91,6 +91,7 @@ namespace MediBillingPro.Desktop.Forms
             var body = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(10) };
             _grid = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, RowHeadersVisible = false, AutoGenerateColumns = true };
             UiStyle.StyleGrid(_grid);
+            _grid.CellContentClick += GridRowActionClick;
             _grid.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0 && _page == "Customers") EditCustomer(Convert.ToInt32(_grid.Rows[e.RowIndex].Cells["CustomerId"].Value)); if (e.RowIndex >= 0 && _page == "Settings") EditSetting(Convert.ToInt32(_grid.Rows[e.RowIndex].Cells["SettingId"].Value)); };
             body.Controls.Add(_grid);
             root.Controls.Add(body, 0, 2);
@@ -151,6 +152,82 @@ namespace MediBillingPro.Desktop.Forms
                 if (_grid.Columns.Contains("SettingId")) _grid.Columns["SettingId"].Visible = false;
                 if (_grid.Columns.Contains("PurchaseId")) _grid.Columns["PurchaseId"].Visible = false;
                 if (_grid.Columns.Contains("InvoiceId")) _grid.Columns["InvoiceId"].Visible = false;
+                AddGridActionColumns();
+            }
+        }
+
+        private void AddGridActionColumns()
+        {
+            AddGridActionColumn("RowView", "View");
+            if (_page == "Customers" || _page == "Settings")
+            {
+                AddGridActionColumn("RowEdit", "Edit");
+                AddGridActionColumn("RowDelete", "Delete");
+            }
+            AddGridActionColumn("RowPrint", "Print");
+            foreach (DataGridViewColumn col in _grid.Columns)
+            {
+                if (col.Name.StartsWith("Row", StringComparison.Ordinal))
+                {
+                    col.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                    col.Width = col.Name == "RowDelete" ? 66 : 60;
+                    col.MinimumWidth = 54;
+                }
+            }
+        }
+
+        private void AddGridActionColumn(string name, string label)
+        {
+            if (_grid.Columns.Contains(name)) return;
+            _grid.Columns.Add(new DataGridViewButtonColumn
+            {
+                Name = name, HeaderText = label, Text = label,
+                UseColumnTextForButtonValue = true, FlatStyle = FlatStyle.Flat,
+                Width = 60, MinimumWidth = 54, SortMode = DataGridViewColumnSortMode.NotSortable
+            });
+        }
+
+        private void GridRowActionClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+            string action = _grid.Columns[e.ColumnIndex].Name;
+            if (!action.StartsWith("Row", StringComparison.Ordinal)) return;
+            DataGridViewRow row = _grid.Rows[e.RowIndex];
+            if (action == "RowEdit")
+            {
+                if (_page == "Customers" && _grid.Columns.Contains("CustomerId")) EditCustomer(Convert.ToInt32(row.Cells["CustomerId"].Value));
+                else if (_page == "Settings" && _grid.Columns.Contains("SettingId")) EditSetting(Convert.ToInt32(row.Cells["SettingId"].Value));
+                return;
+            }
+            if (action == "RowDelete")
+            {
+                if (_page != "Customers" && _page != "Settings") return;
+                _grid.CurrentCell = row.Cells.Cast<DataGridViewCell>().FirstOrDefault(cell => cell.Visible);
+                if (_page == "Customers") DeleteCustomer(); else DeleteSetting();
+                return;
+            }
+            if (action == "RowView")
+            {
+                var sb = new System.Text.StringBuilder();
+                foreach (DataGridViewCell cell in row.Cells)
+                {
+                    if (cell.Visible && !cell.OwningColumn.Name.StartsWith("Row", StringComparison.Ordinal))
+                        sb.AppendLine(cell.OwningColumn.HeaderText + ": " + Convert.ToString(cell.Value));
+                }
+                MessageBox.Show(this, sb.ToString(), _page + " Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if (action == "RowPrint")
+            {
+                var dt = new DataTable(_page);
+                var cols = new System.Collections.Generic.List<DataGridViewColumn>();
+                foreach (DataGridViewColumn col in _grid.Columns)
+                    if (col.Visible && !col.Name.StartsWith("Row", StringComparison.Ordinal))
+                    { cols.Add(col); dt.Columns.Add(col.HeaderText); }
+                var values = cols.Select(col => row.Cells[col.Index].Value ?? DBNull.Value).ToArray();
+                dt.Rows.Add(values);
+                var reportGrid = new DataGridView { DataSource = dt, AutoGenerateColumns = true };
+                ReportOutput.Show(this, reportGrid, _page + " Record");
             }
         }
 
