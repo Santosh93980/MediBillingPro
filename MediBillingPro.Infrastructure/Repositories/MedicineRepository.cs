@@ -99,6 +99,7 @@ namespace MediBillingPro.Infrastructure.Repositories
                     .Value = (object)supplierId ?? DBNull.Value;
 
                 connection.Open();
+                AuditContext.Apply(connection, "Medicine Inventory");
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -247,6 +248,7 @@ namespace MediBillingPro.Infrastructure.Repositories
                 AddMedicineParameters(command, medicine);
 
                 connection.Open();
+                AuditContext.Apply(connection, "Medicine Inventory");
 
                 return Convert.ToInt32(command.ExecuteScalar());
             }
@@ -296,6 +298,7 @@ namespace MediBillingPro.Infrastructure.Repositories
                     medicine.MedicineId;
 
                 connection.Open();
+                AuditContext.Apply(connection, "Medicine Inventory");
 
                 return command.ExecuteNonQuery() == 1;
             }
@@ -319,6 +322,7 @@ namespace MediBillingPro.Infrastructure.Repositories
                     "@MedicineId", SqlDbType.Int).Value = medicineId;
 
                 connection.Open();
+                AuditContext.Apply(connection, "Medicine Inventory");
 
                 return command.ExecuteNonQuery() == 1;
             }
