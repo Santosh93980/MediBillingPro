@@ -850,7 +850,7 @@ namespace MediBillingPro.Desktop.Forms
                 bool deleted = _service.Delete(medicine.MedicineId);
 
                 // Reload from SQL Server, not just from the displayed grid.
-                _allMedicines = _service.GetAll((int)_supplierIdFilter) ?? new List<Medicine>();
+                _allMedicines = _supplierIdFilter.HasValue ? (_service.GetAll(_supplierIdFilter.Value) ?? new List<Medicine>()) : (_service.GetAll() ?? new List<Medicine>());
                 PopulateCategories();
                 ApplyFilters();
 
@@ -866,7 +866,7 @@ namespace MediBillingPro.Desktop.Forms
             {
                 try
                 {
-                    _allMedicines = _service.GetAll((int)_supplierIdFilter) ?? new List<Medicine>();
+                    _allMedicines = _supplierIdFilter.HasValue ? (_service.GetAll(_supplierIdFilter.Value) ?? new List<Medicine>()) : (_service.GetAll() ?? new List<Medicine>());
                     PopulateCategories();
                     ApplyFilters();
                 }
