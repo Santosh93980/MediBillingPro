@@ -26,6 +26,7 @@ namespace MediBillingPro.Infrastructure.Repositories
             using (SqlConnection connection = _factory.CreateConnection())
             {
                 connection.Open();
+                AuditContext.Apply(connection, "Purchases");
                 using (SqlTransaction transaction = connection.BeginTransaction())
                 {
                     try
@@ -119,6 +120,7 @@ ORDER BY p.PurchaseDate DESC, p.PurchaseId DESC;";
             using (SqlCommand command = new SqlCommand(sql, connection))
             {
                 connection.Open();
+                AuditContext.Apply(connection, "Purchases");
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
