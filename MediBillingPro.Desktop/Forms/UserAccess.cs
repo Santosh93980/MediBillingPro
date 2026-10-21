@@ -298,7 +298,7 @@ ORDER BY FirstName,LastName",cn))
             root.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,170)); root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
             Controls.Add(root);
             AddField(root,"First name *",first); AddField(root,"Last name *",last); AddField(root,"Username *",username);
-            password.UseSystemPasswordChar=true; password.PlaceholderText=existing==null?"At least 8 characters":"Leave blank to keep current password";
+            password.UseSystemPasswordChar=true; password.Text="";
             AddField(root,existing==null?"Password *":"New password",password); AddField(root,"Mobile number *",mobile); AddField(root,"Email",email);
             address.Multiline=true; address.Height=55; AddField(root,"Address",address);
             role.DropDownStyle=ComboBoxStyle.DropDownList; role.DataSource=UserAccess.GetActiveRoles(); role.DisplayMember="RoleName"; role.ValueMember="RoleName"; AddField(root,"Role *",role);
