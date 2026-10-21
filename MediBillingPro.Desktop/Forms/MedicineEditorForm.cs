@@ -73,10 +73,10 @@ namespace MediBillingPro.Desktop.Forms
             : "Edit Medicine";
 
             StartPosition = FormStartPosition.CenterParent;
-            FormBorderStyle = FormBorderStyle.Sizable;
-            MinimumSize = new Size(620, 650);
-            Size = new Size(760, 800);
-            MaximizeBox = true;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MinimumSize = new Size(620, 600);
+            Size = new Size(700, 720);
+            MaximizeBox = false;
             MinimizeBox = false;
             AutoScaleMode = AutoScaleMode.Dpi;
             BackColor = Color.White;
@@ -296,16 +296,16 @@ namespace MediBillingPro.Desktop.Forms
             cmbGstPercent.SelectedIndexChanged += (s, e) =>
                 RecalculatePrices();
 
-            AddField(content, "GST rate", cmbGstPercent);
+            AddField(content, "Discount rate (%)", cmbGstPercent);
 
             lblTaxablePrice = CreatePriceLabel();
-            AddField(content, "Selling price before GST", lblTaxablePrice);
+            AddField(content, "Price before discount", lblTaxablePrice);
 
             lblGstAmount = CreatePriceLabel();
-            AddField(content, "GST amount", lblGstAmount);
+            AddField(content, "Discount amount", lblGstAmount);
 
             lblSellingPrice = CreatePriceLabel(true);
-            AddField(content, "FINAL SELLING PRICE", lblSellingPrice);
+            AddField(content, "FINAL SELLING PRICE AFTER DISCOUNT", lblSellingPrice);
 
             RecalculatePrices();
 
@@ -486,11 +486,11 @@ namespace MediBillingPro.Desktop.Forms
 
             // Update the popup labels.
             lblTaxablePrice.Text =
-                "Price after margin: ₹" +
+                "Price before discount: ₹" +
                 _calculatedTaxablePrice.ToString("N2");
 
             lblGstAmount.Text =
-                "GST deduction: ₹" +
+                "Discount amount: ₹" +
                 _calculatedGstAmount.ToString("N2");
 
             lblSellingPrice.Text =
