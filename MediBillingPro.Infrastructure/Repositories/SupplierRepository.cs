@@ -92,6 +92,7 @@ namespace MediBillingPro.Infrastructure.Repositories
             {
                 AddSupplierParameters(command, supplier);
                 connection.Open();
+                AuditContext.Apply(connection, "Suppliers");
                 return Convert.ToInt32(command.ExecuteScalar());
             }
         }
@@ -115,6 +116,7 @@ namespace MediBillingPro.Infrastructure.Repositories
                 AddSupplierParameters(command, supplier);
                 command.Parameters.Add("@SupplierId", SqlDbType.Int).Value = supplier.SupplierId;
                 connection.Open();
+                AuditContext.Apply(connection, "Suppliers");
                 return command.ExecuteNonQuery() > 0;
             }
         }
@@ -168,6 +170,7 @@ namespace MediBillingPro.Infrastructure.Repositories
                     .Value = supplierId;
 
                 connection.Open();
+                AuditContext.Apply(connection, "Suppliers");
 
                 return Convert.ToInt32(command.ExecuteScalar()) == 1;
             }
@@ -183,6 +186,7 @@ namespace MediBillingPro.Infrastructure.Repositories
             {
                 addParameters?.Invoke(command);
                 connection.Open();
+                AuditContext.Apply(connection, "Suppliers");
 
                 using (var reader = command.ExecuteReader())
                 {
