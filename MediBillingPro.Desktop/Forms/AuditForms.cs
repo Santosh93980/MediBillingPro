@@ -90,15 +90,20 @@ CASE WHEN @screen IN ('Login','User Management','Role Management','Administratio
 
         private static DataTable TableFromGrid(DataGridView grid)
         {
-            if (grid.DataSource is DataTable dt) return dt.Copy();
-            if (grid.DataSource is DataView dv) return dv.ToTable();
             var table = new DataTable();
-            foreach (DataGridViewColumn c in grid.Columns) if (c.Visible) table.Columns.Add(c.HeaderText);
+            var visibleColumns = new System.Collections.Generic.List<DataGridViewColumn>();
+            foreach (DataGridViewColumn column in grid.Columns)
+            {
+                if (!column.Visible) continue;
+                visibleColumns.Add(column);
+                table.Columns.Add(column.HeaderText);
+            }
             foreach (DataGridViewRow row in grid.Rows)
             {
                 if (row.IsNewRow) continue;
                 var values = new System.Collections.Generic.List<object>();
-                foreach (DataGridViewColumn c in grid.Columns) if (c.Visible) values.Add(row.Cells[c.Index].Value ?? DBNull.Value);
+                foreach (DataGridViewColumn column in visibleColumns)
+                    values.Add(row.Cells[column.Index].Value ?? DBNull.Value);
                 table.Rows.Add(values.ToArray());
             }
             return table;
