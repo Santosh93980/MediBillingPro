@@ -63,6 +63,7 @@ namespace MediBillingPro.Desktop.Forms
         {
             var connection = new SqlConnection(_connectionString);
             connection.Open();
+            AuditService.SetContext(connection, "Purchases / Operations");
             return connection;
         }
 
