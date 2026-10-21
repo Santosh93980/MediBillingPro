@@ -78,7 +78,8 @@ BEGIN
  );
 END;
 IF OBJECT_ID(N'dbo.Invoices',N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Invoices',N'PaymentMethod') IS NULL
- ALTER TABLE dbo.Invoices ADD PaymentMethod NVARCHAR(40) NULL;";
+ ALTER TABLE dbo.Invoices ADD PaymentMethod NVARCHAR(40) NULL;
+UPDATE dbo.AppUsers SET RoleName='Super Admin', FirstName=COALESCE(NULLIF(FirstName,''),'System'), LastName=COALESCE(NULLIF(LastName,''),'Administrator') WHERE UserName='admin' AND RoleName='Admin';";
             using (var cn = new SqlConnection(ConnectionString))
             using (var cmd = new SqlCommand(sql, cn))
             {
