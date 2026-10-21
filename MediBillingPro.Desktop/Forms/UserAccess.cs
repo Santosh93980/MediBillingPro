@@ -77,6 +77,25 @@ BEGIN
   IsActive BIT NOT NULL CONSTRAINT DF_Roles_IsActive DEFAULT(1)
  );
 END;
+IF COL_LENGTH(N'dbo.AppUsers',N'CreatedBy') IS NULL ALTER TABLE dbo.AppUsers ADD CreatedBy NVARCHAR(150) NULL;
+IF COL_LENGTH(N'dbo.AppUsers',N'CreatedByName') IS NULL ALTER TABLE dbo.AppUsers ADD CreatedByName NVARCHAR(150) NULL;
+IF COL_LENGTH(N'dbo.AppUsers',N'CreatedDate') IS NULL ALTER TABLE dbo.AppUsers ADD CreatedDate DATETIME2 NULL;
+IF COL_LENGTH(N'dbo.AppUsers',N'UpdatedBy') IS NULL ALTER TABLE dbo.AppUsers ADD UpdatedBy NVARCHAR(150) NULL;
+IF COL_LENGTH(N'dbo.AppUsers',N'UpdatedDate') IS NULL ALTER TABLE dbo.AppUsers ADD UpdatedDate DATETIME2 NULL;
+IF OBJECT_ID(N'dbo.AuditLogs',N'U') IS NULL
+BEGIN
+ CREATE TABLE dbo.AuditLogs(
+  AuditLogId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AuditLogs PRIMARY KEY,
+  ActionedBy NVARCHAR(150) NOT NULL CONSTRAINT DF_AuditLogs_ActionedBy DEFAULT(N'SYSTEM'),
+  ActionedByUserId INT NULL,
+  ActionedOn DATETIME2 NOT NULL CONSTRAINT DF_AuditLogs_ActionedOn DEFAULT(SYSUTCDATETIME()),
+  ScreenName NVARCHAR(150) NOT NULL CONSTRAINT DF_AuditLogs_ScreenName DEFAULT(N'Unknown'),
+  Activity NVARCHAR(500) NOT NULL,
+  ActivityType NVARCHAR(40) NOT NULL,
+  Details NVARCHAR(MAX) NULL,
+  Category NVARCHAR(30) NOT NULL CONSTRAINT DF_AuditLogs_Category DEFAULT(N'Operations')
+ );
+END;
 IF OBJECT_ID(N'dbo.Invoices',N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Invoices',N'PaymentMethod') IS NULL
  ALTER TABLE dbo.Invoices ADD PaymentMethod NVARCHAR(40) NULL;
 UPDATE dbo.AppUsers SET RoleName='Super Admin', FirstName=COALESCE(NULLIF(FirstName,''),'System'), LastName=COALESCE(NULLIF(LastName,''),'Administrator') WHERE UserName='admin' AND RoleName='Admin';";
