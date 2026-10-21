@@ -431,7 +431,8 @@ namespace MediBillingPro.Desktop.Forms
                     HeaderText = "ACTIONS",
                     ReadOnly = true,
                     FillWeight = 155,
-                    MinimumWidth = 155,
+                    MinimumWidth = 270,
+                    FillWeight = 270,
                     SortMode = DataGridViewColumnSortMode.NotSortable
                 });
 
@@ -882,155 +883,108 @@ namespace MediBillingPro.Desktop.Forms
         }
 
 
-        private void DgvMedicines_CellPainting(
-            object sender,
-            DataGridViewCellPaintingEventArgs e)
+        private void DgvMedicines_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
-            if (e.RowIndex < 0 ||
-                e.ColumnIndex < 0 ||
-                dgvMedicines.Columns[e.ColumnIndex].Name != "Actions")
-                return;
-
+            if (e.RowIndex < 0 || e.ColumnIndex < 0 || dgvMedicines.Columns[e.ColumnIndex].Name != "Actions") return;
             e.PaintBackground(e.CellBounds, true);
-
-            int gap = 8;
-            int padding = 8;
-            int buttonWidth = (e.CellBounds.Width - padding * 2 - gap) / 2;
-            int buttonHeight = 28;
-            int y = e.CellBounds.Y + (e.CellBounds.Height - buttonHeight) / 2;
-
-            Rectangle editRect = new Rectangle(
-                e.CellBounds.X + padding, y, buttonWidth, buttonHeight);
-
-            Rectangle deleteRect = new Rectangle(
-                editRect.Right + gap, y, buttonWidth, buttonHeight);
-
-            bool editHovered =
-                _hoverRowIndex == e.RowIndex && _hoverAction == "Edit";
-
-            bool deleteHovered =
-                _hoverRowIndex == e.RowIndex && _hoverAction == "Delete";
-
-            Color editColor = editHovered
-                ? Color.FromArgb(21, 96, 67)
-                : MediBillingTheme.Primary;
-
-            Color deleteColor = deleteHovered
-                ? Color.FromArgb(153, 27, 27)
-                : Color.FromArgb(185, 45, 45);
-
-            using (var editBrush = new SolidBrush(editColor))
-            using (var deleteBrush = new SolidBrush(deleteColor))
-            using (var font = new Font("Segoe UI", 8.5F, FontStyle.Bold))
+            string[] names = { "View", "Edit", "Delete", "Print" };
+            Color[] colors = { Color.FromArgb(51, 95, 128), MediBillingTheme.Primary, Color.FromArgb(185, 45, 45), Color.FromArgb(77, 96, 87) };
+            int pad = 5, gap = 4, bw = Math.Max(42, (e.CellBounds.Width - pad * 2 - gap * 3) / 4), bh = 26;
+            int y = e.CellBounds.Y + (e.CellBounds.Height - bh) / 2;
+            using (var font = new Font("Segoe UI", 8F, FontStyle.Bold))
             {
-                e.Graphics.FillRectangle(editBrush, editRect);
-                e.Graphics.FillRectangle(deleteBrush, deleteRect);
-
-                TextRenderer.DrawText(
-                    e.Graphics,
-                    "Edit",
-                    font,
-                    editRect,
-                    Color.White,
-                    TextFormatFlags.HorizontalCenter |
-                    TextFormatFlags.VerticalCenter |
-                    TextFormatFlags.SingleLine);
-
-                TextRenderer.DrawText(
-                    e.Graphics,
-                    "Delete",
-                    font,
-                    deleteRect,
-                    Color.White,
-                    TextFormatFlags.HorizontalCenter |
-                    TextFormatFlags.VerticalCenter |
-                    TextFormatFlags.SingleLine);
+                for (int i = 0; i < names.Length; i++)
+                {
+                    int x = e.CellBounds.X + pad + i * (bw + gap);
+                    var rect = new Rectangle(x, y, bw, bh);
+                    bool hovered = _hoverRowIndex == e.RowIndex && _hoverAction == names[i];
+                    using (var brush = new SolidBrush(hovered ? ControlPaint.Dark(colors[i], 0.12F) : colors[i]))
+                        e.Graphics.FillRectangle(brush, rect);
+                    TextRenderer.DrawText(e.Graphics, names[i], font, rect, Color.White,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+                }
             }
-
+            e.Paint(e.CellBounds, DataGridViewPaintParts.Border);
             e.Handled = true;
         }
 
-        private void DgvMedicines_CellMouseMove(
-            object sender,
-            DataGridViewCellMouseEventArgs e)
+        private void DgvMedicines_CellMouseMove(object sender, DataGridViewCellMouseEventArgs e)
         {
-            if (e.RowIndex < 0 ||
-                e.ColumnIndex < 0 ||
-                dgvMedicines.Columns[e.ColumnIndex].Name != "Actions")
+            if (e.RowIndex < 0 || e.ColumnIndex < 0 || dgvMedicines.Columns[e.ColumnIndex].Name != "Actions")
             {
-                _hoverAction = "";
-                _hoverRowIndex = -1;
-                dgvMedicines.Cursor = Cursors.Default;
-                dgvMedicines.Invalidate();
-                return;
+                _hoverAction = ""; _hoverRowIndex = -1; dgvMedicines.Cursor = Cursors.Default; return;
             }
-
-            int padding = 8;
-            int gap = 8;
-            int buttonWidth =
-                (dgvMedicines.Columns[e.ColumnIndex].Width - padding * 2 - gap) / 2;
-
-            string action = "";
-
-            if (e.X >= padding && e.X < padding + buttonWidth)
-                action = "Edit";
-            else if (e.X >= padding + buttonWidth + gap)
-                action = "Delete";
-
+            int pad = 5, gap = 4, bw = Math.Max(42, (dgvMedicines.Columns[e.ColumnIndex].Width - pad * 2 - gap * 3) / 4);
+            int index = (e.X - pad) / Math.Max(1, bw + gap);
+            string[] names = { "View", "Edit", "Delete", "Print" };
+            string action = e.X < pad || index < 0 || index >= names.Length ? "" : names[index];
             if (_hoverAction != action || _hoverRowIndex != e.RowIndex)
             {
-                _hoverAction = action;
-                _hoverRowIndex = e.RowIndex;
-
-                dgvMedicines.Cursor = string.IsNullOrEmpty(action)
-                    ? Cursors.Default
-                    : Cursors.Hand;
-
-                dgvMedicines.Invalidate();
+                _hoverAction = action; _hoverRowIndex = e.RowIndex;
+                dgvMedicines.Cursor = string.IsNullOrEmpty(action) ? Cursors.Default : Cursors.Hand;
+                dgvMedicines.InvalidateCell(e.ColumnIndex, e.RowIndex);
             }
         }
 
-        private void DgvMedicines_CellMouseLeave(
-            object sender,
-            DataGridViewCellEventArgs e)
+        private void DgvMedicines_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
         {
-            _hoverAction = "";
-            _hoverRowIndex = -1;
-            dgvMedicines.Cursor = Cursors.Default;
-            dgvMedicines.Invalidate();
+            _hoverAction = ""; _hoverRowIndex = -1;
+            if (dgvMedicines != null) { dgvMedicines.Cursor = Cursors.Default; dgvMedicines.Invalidate(); }
         }
 
-
-        private void DgvMedicines_CellMouseClick(
-            object sender, DataGridViewCellMouseEventArgs e)
+        private void DgvMedicines_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex < 0 ||
-                dgvMedicines.Columns[e.ColumnIndex].Name != "Actions")
-                return;
-
-            object idValue = dgvMedicines.Rows[e.RowIndex]
-                .Cells["MedicineId"].Value;
-
-            if (idValue == null || idValue == DBNull.Value)
-                return;
-
+            if (e.RowIndex < 0 || e.ColumnIndex < 0 || dgvMedicines.Columns[e.ColumnIndex].Name != "Actions") return;
+            object idValue = dgvMedicines.Rows[e.RowIndex].Cells["MedicineId"].Value;
+            if (idValue == null || idValue == DBNull.Value) return;
             int id = Convert.ToInt32(idValue);
-
-            Medicine selected = _visibleMedicines.FirstOrDefault(
-                m => m.MedicineId == id);
-
-            if (selected == null)
-                return;
-
-            int width = dgvMedicines.Columns[e.ColumnIndex].Width;
-            int padding = 5;
-            int gap = 5;
-            int buttonWidth = Math.Max(45, (width - padding * 2 - gap) / 2);
-
-            if (e.X < padding + buttonWidth + gap)
-                EditMedicine(selected);
-            else
-                DeleteMedicine(selected);
+            Medicine selected = _visibleMedicines.FirstOrDefault(m => m.MedicineId == id);
+            if (selected == null) return;
+            int pad = 5, gap = 4, bw = Math.Max(42, (dgvMedicines.Columns[e.ColumnIndex].Width - pad * 2 - gap * 3) / 4);
+            int actionIndex = (e.X - pad) / Math.Max(1, bw + gap);
+            if (e.X < pad || actionIndex < 0 || actionIndex > 3) return;
+            switch (actionIndex)
+            {
+                case 0: ViewMedicine(selected); break;
+                case 1: EditMedicine(selected); break;
+                case 2: DeleteMedicine(selected); break;
+                case 3: PrintMedicine(selected); break;
+            }
         }
+
+        private void ViewMedicine(Medicine medicine)
+        {
+            string details = "Medicine: " + medicine.MedicineName +
+                "\nProduct type: " + medicine.ProductType +
+                "\nGeneric name: " + medicine.GenericName +
+                "\nManufacturer: " + medicine.Manufacturer +
+                "\nBarcode: " + medicine.Barcode +
+                "\nCategory: " + medicine.Category +
+                "\nStrength / Unit: " + medicine.Strength + " / " + medicine.Unit +
+                "\nReorder level: " + medicine.ReorderLevel +
+                "\nPrescription required: " + (medicine.IsPrescriptionRequired ? "Yes" : "No") +
+                "\nStorage: " + medicine.RackCode + " / " + medicine.ShelfCode + " / " + medicine.TrayCode + " / " + medicine.BoxCode;
+            MessageBox.Show(this, details, "Medicine Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void PrintMedicine(Medicine medicine)
+        {
+            var dt = new DataTable("Medicine");
+            dt.Columns.Add("Field"); dt.Columns.Add("Value");
+            dt.Rows.Add("Medicine ID", medicine.MedicineId.ToString());
+            dt.Rows.Add("Medicine Name", medicine.MedicineName ?? "");
+            dt.Rows.Add("Product Type", medicine.ProductType ?? "");
+            dt.Rows.Add("Generic Name", medicine.GenericName ?? "");
+            dt.Rows.Add("Manufacturer", medicine.Manufacturer ?? "");
+            dt.Rows.Add("Barcode", medicine.Barcode ?? "");
+            dt.Rows.Add("Category", medicine.Category ?? "");
+            dt.Rows.Add("Strength", medicine.Strength ?? "");
+            dt.Rows.Add("Unit", medicine.Unit ?? "");
+            dt.Rows.Add("Reorder Level", medicine.ReorderLevel.ToString());
+            dt.Rows.Add("Prescription Required", medicine.IsPrescriptionRequired ? "Yes" : "No");
+            var reportGrid = new DataGridView { DataSource = dt, AutoGenerateColumns = true };
+            ReportOutput.Show(this, reportGrid, "Medicine Record");
+        }
+
     }
 }
