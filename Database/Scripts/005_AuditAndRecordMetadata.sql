@@ -6,22 +6,34 @@
 */
 IF OBJECT_ID(N'dbo.AuditLogs',N'U') IS NULL
 BEGIN
- CREATE TABLE dbo.AuditLogs(
-  AuditLogId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AuditLogs PRIMARY KEY,
-  ActionedBy NVARCHAR(150) NOT NULL CONSTRAINT DF_AuditLogs_ActionedBy DEFAULT(N'SYSTEM'),
-  ActionedByUserId INT NULL,
-  ActionedOn DATETIME2 NOT NULL CONSTRAINT DF_AuditLogs_ActionedOn DEFAULT(SYSUTCDATETIME()),
-  ScreenName NVARCHAR(150) NOT NULL CONSTRAINT DF_AuditLogs_ScreenName DEFAULT(N'Unknown'),
-  Activity NVARCHAR(500) NOT NULL,
-  ActivityType NVARCHAR(40) NOT NULL,
-  Details NVARCHAR(MAX) NULL,
-  Category NVARCHAR(30) NOT NULL CONSTRAINT DF_AuditLogs_Category DEFAULT(N'Operations')
- );
- CREATE INDEX IX_AuditLogs_Category_ActionedOn ON dbo.AuditLogs(Category,ActionedOn DESC);
- CREATE INDEX IX_AuditLogs_ActionedBy ON dbo.AuditLogs(ActionedBy);
+    CREATE TABLE dbo.AuditLogs
+    (
+        AuditLogId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AuditLogs PRIMARY KEY
+    );
 END;
-IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AuditLogs') AND name=N'IX_AuditLogs_Category_ActionedOn') CREATE INDEX IX_AuditLogs_Category_ActionedOn ON dbo.AuditLogs(Category,ActionedOn DESC);
-IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AuditLogs') AND name=N'IX_AuditLogs_ActionedBy') CREATE INDEX IX_AuditLogs_ActionedBy ON dbo.AuditLogs(ActionedBy);
+
+-- Ensure every required column exists before creating indexes or triggers.
+IF COL_LENGTH(N'dbo.AuditLogs',N'ActionedBy') IS NULL
+    ALTER TABLE dbo.AuditLogs ADD ActionedBy NVARCHAR(150) NOT NULL CONSTRAINT DF_AuditLogs_ActionedBy_Repair DEFAULT(N'SYSTEM') WITH VALUES;
+IF COL_LENGTH(N'dbo.AuditLogs',N'ActionedByUserId') IS NULL
+    ALTER TABLE dbo.AuditLogs ADD ActionedByUserId INT NULL;
+IF COL_LENGTH(N'dbo.AuditLogs',N'ActionedOn') IS NULL
+    ALTER TABLE dbo.AuditLogs ADD ActionedOn DATETIME2 NOT NULL CONSTRAINT DF_AuditLogs_ActionedOn_Repair DEFAULT(SYSUTCDATETIME()) WITH VALUES;
+IF COL_LENGTH(N'dbo.AuditLogs',N'ScreenName') IS NULL
+    ALTER TABLE dbo.AuditLogs ADD ScreenName NVARCHAR(150) NOT NULL CONSTRAINT DF_AuditLogs_ScreenName_Repair DEFAULT(N'Unknown') WITH VALUES;
+IF COL_LENGTH(N'dbo.AuditLogs',N'Activity') IS NULL
+    ALTER TABLE dbo.AuditLogs ADD Activity NVARCHAR(500) NOT NULL CONSTRAINT DF_AuditLogs_Activity_Repair DEFAULT(N'Existing audit entry') WITH VALUES;
+IF COL_LENGTH(N'dbo.AuditLogs',N'ActivityType') IS NULL
+    ALTER TABLE dbo.AuditLogs ADD ActivityType NVARCHAR(40) NOT NULL CONSTRAINT DF_AuditLogs_ActivityType_Repair DEFAULT(N'Other') WITH VALUES;
+IF COL_LENGTH(N'dbo.AuditLogs',N'Details') IS NULL
+    ALTER TABLE dbo.AuditLogs ADD Details NVARCHAR(MAX) NULL;
+IF COL_LENGTH(N'dbo.AuditLogs',N'Category') IS NULL
+    ALTER TABLE dbo.AuditLogs ADD Category NVARCHAR(30) NOT NULL CONSTRAINT DF_AuditLogs_Category_Repair DEFAULT(N'Operations') WITH VALUES;
+
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AuditLogs') AND name=N'IX_AuditLogs_Category_ActionedOn')
+    CREATE INDEX IX_AuditLogs_Category_ActionedOn ON dbo.AuditLogs(Category,ActionedOn DESC);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AuditLogs') AND name=N'IX_AuditLogs_ActionedBy')
+    CREATE INDEX IX_AuditLogs_ActionedBy ON dbo.AuditLogs(ActionedBy);
 GO
 
 /* Apply the standard four metadata fields to existing business tables. */
@@ -38,15 +50,30 @@ BEGIN
  IF @obj IS NOT NULL
  BEGIN
   IF COL_LENGTH(N'dbo.'+@t,N'CreatedBy') IS NULL
-   EXEC(N'ALTER TABLE dbo.'+QUOTENAME(@t)+N' ADD CreatedBy NVARCHAR(150) NULL;');
+  BEGIN
+   SET @sql=N'ALTER TABLE dbo.'+QUOTENAME(@t)+N' ADD CreatedBy NVARCHAR(150) NULL;';
+   EXEC sys.sp_executesql @sql;
+  END
   IF COL_LENGTH(N'dbo.'+@t,N'CreatedByName') IS NULL
-   EXEC(N'ALTER TABLE dbo.'+QUOTENAME(@t)+N' ADD CreatedByName NVARCHAR(150) NULL;');
+  BEGIN
+   SET @sql=N'ALTER TABLE dbo.'+QUOTENAME(@t)+N' ADD CreatedByName NVARCHAR(150) NULL;';
+   EXEC sys.sp_executesql @sql;
+  END
   IF COL_LENGTH(N'dbo.'+@t,N'CreatedDate') IS NULL
-   EXEC(N'ALTER TABLE dbo.'+QUOTENAME(@t)+N' ADD CreatedDate DATETIME2 NULL;');
+  BEGIN
+   SET @sql=N'ALTER TABLE dbo.'+QUOTENAME(@t)+N' ADD CreatedDate DATETIME2 NULL;';
+   EXEC sys.sp_executesql @sql;
+  END
   IF COL_LENGTH(N'dbo.'+@t,N'UpdatedBy') IS NULL
-   EXEC(N'ALTER TABLE dbo.'+QUOTENAME(@t)+N' ADD UpdatedBy NVARCHAR(150) NULL;');
+  BEGIN
+   SET @sql=N'ALTER TABLE dbo.'+QUOTENAME(@t)+N' ADD UpdatedBy NVARCHAR(150) NULL;';
+   EXEC sys.sp_executesql @sql;
+  END
   IF COL_LENGTH(N'dbo.'+@t,N'UpdatedDate') IS NULL
-   EXEC(N'ALTER TABLE dbo.'+QUOTENAME(@t)+N' ADD UpdatedDate DATETIME2 NULL;');
+  BEGIN
+   SET @sql=N'ALTER TABLE dbo.'+QUOTENAME(@t)+N' ADD UpdatedDate DATETIME2 NULL;';
+   EXEC sys.sp_executesql @sql;
+  END
 
   SELECT TOP(1) @pk=c.name
   FROM sys.indexes ix
