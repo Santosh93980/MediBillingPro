@@ -80,7 +80,7 @@ BEGIN
     WHEN EXISTS(SELECT 1 FROM inserted) THEN N''created'' ELSE N''deleted'' END,
   CASE WHEN EXISTS(SELECT 1 FROM inserted) AND EXISTS(SELECT 1 FROM deleted) THEN N''Update''
     WHEN EXISTS(SELECT 1 FROM inserted) THEN N''Create'' ELSE N''Delete'' END,
-  COALESCE((SELECT * FROM inserted FOR JSON PATH),(SELECT * FROM deleted FOR JSON PATH)),
+  CASE WHEN EXISTS(SELECT 1 FROM inserted) THEN (SELECT * FROM inserted FOR JSON PATH) ELSE (SELECT * FROM deleted FOR JSON PATH) END,
   CASE WHEN N'''+@t+N''' IN (N''AppUsers'',N''Roles'',N''AppSettings'') THEN N''Administration'' ELSE N''Operations'' END;
 END;';
    EXEC sys.sp_executesql @sql;
