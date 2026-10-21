@@ -21,6 +21,8 @@ namespace MediBillingPro.Desktop
                     if (login.ShowDialog() != DialogResult.OK || login.Session == null)
                         return;
                     session = login.Session;
+                    AuditService.SetSession(session);
+                    AuditService.Write("Login", "Successful login", "Login", "Role=" + session.Role);
                 }
 
                 using (var dashboard = new DashboardForm(session))
