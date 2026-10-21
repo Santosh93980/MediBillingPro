@@ -196,7 +196,7 @@ CASE WHEN @screen IN ('Login','User Management','Role Management','Administratio
             filters.Controls.Add(new Label{Text="From",AutoSize=true,Margin=new Padding(4,9,2,0)});filters.Controls.Add(_from);
             filters.Controls.Add(new Label{Text="To",AutoSize=true,Margin=new Padding(8,9,2,0)});filters.Controls.Add(_to);
             foreach(var item in new[]{Tuple.Create("Actioned by",_actionedBy),Tuple.Create("Screen",_screen),Tuple.Create("Activity",_activity),Tuple.Create("Type",_type)})
-            { item.Item2.Width=130;item.Item2.PlaceholderText=item.Item1;filters.Controls.Add(item.Item2); }
+            { item.Item2.Width=130;new ToolTip().SetToolTip(item.Item2,item.Item1);filters.Controls.Add(item.Item2); }
             var search= new Button{Text="Apply filters",AutoSize=true,Height=30,BackColor=MediBillingTheme.Primary,ForeColor=Color.White,FlatStyle=FlatStyle.Flat};
             var export=new Button{Text="Print / Export",AutoSize=true,Height=30,BackColor=MediBillingTheme.Secondary,ForeColor=Color.White,FlatStyle=FlatStyle.Flat};
             search.Click+=(s,e)=>LoadData();export.Click+=(s,e)=>ReportOutput.Show(this,_grid,_category+" Audit");
