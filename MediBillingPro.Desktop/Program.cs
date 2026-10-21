@@ -16,6 +16,7 @@ namespace MediBillingPro.Desktop
             while (true)
             {
                 UserSession session;
+                AuditService.SetSession(null);
                 using (var login = new LoginForm())
                 {
                     if (login.ShowDialog() != DialogResult.OK || login.Session == null)
