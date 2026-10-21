@@ -233,7 +233,7 @@ FROM dbo.AppUsers WHERE UserName=@u AND PasswordHash=@p AND IsActive=1", cn))
                 using(var cn=new SqlConnection(UserAccess.ConnectionString))
                 using(var cmd=new SqlCommand(@"SELECT UserId,UserName,FirstName,LastName,MobileNumber,Email,[Address],RoleName,
 CASE WHEN PharmacyName IS NULL OR PharmacyName='' THEN '—' ELSE PharmacyName END PharmacyName,
-PharmacyAddress,PharmacyLicenseNumber,PharmacyGSTIN,
+PharmacyAddress,PharmacyLicenseNumber,PharmacyGSTIN,CreatedByName,CreatedDate,UpdatedBy,UpdatedDate,
 CASE WHEN IsActive=1 THEN 'Active' ELSE 'Disabled' END AccountStatus,CreatedAt
 FROM dbo.AppUsers
 WHERE (@q='' OR UserName LIKE @like OR FirstName LIKE @like OR LastName LIKE @like OR MobileNumber LIKE @like OR Email LIKE @like)
@@ -244,6 +244,8 @@ ORDER BY FirstName,LastName",cn))
                 }
                 if(_grid.Columns.Contains("UserId")) _grid.Columns["UserId"].Visible=false;
                 if(_grid.Columns.Contains("CreatedAt")) _grid.Columns["CreatedAt"].DefaultCellStyle.Format="dd MMM yyyy";
+                if(_grid.Columns.Contains("CreatedDate")) _grid.Columns["CreatedDate"].DefaultCellStyle.Format="dd MMM yyyy HH:mm";
+                if(_grid.Columns.Contains("UpdatedDate")) _grid.Columns["UpdatedDate"].DefaultCellStyle.Format="dd MMM yyyy HH:mm";
                 if(_grid.Columns.Contains("AccountStatus")) _grid.Columns["AccountStatus"].HeaderText="Status";
             } catch(Exception ex) { MessageBox.Show("Unable to load users.\n"+ex.Message,"User management",MessageBoxButtons.OK,MessageBoxIcon.Error); }
         }
