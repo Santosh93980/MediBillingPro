@@ -37,8 +37,8 @@ EXEC sys.sp_set_session_context @key=N'ScreenName', @value=@screen;", connection
             {
                 using (var cn = new SqlConnection(UserAccess.ConnectionString))
                 using (var cmd = new SqlCommand(@"IF OBJECT_ID(N'dbo.AuditLogs',N'U') IS NOT NULL
-INSERT dbo.AuditLogs(ActionedBy,ActionedByUserId,ActionedOn,ScreenName,Activity,ActivityType,Details,Category)
-VALUES(@name,@id,SYSUTCDATETIME(),@screen,@activity,@type,@details,
+INSERT dbo.AuditLogs(Action,ActionedBy,ActionedByUserId,ActionedOn,ScreenName,Activity,ActivityType,Details,Category)
+VALUES(@type,@name,@id,SYSUTCDATETIME(),@screen,@activity,@type,@details,
 CASE WHEN @screen IN ('Login','User Management','Role Management','Administration Audit') THEN 'Administration' ELSE 'Operations' END);", cn))
                 {
                     cmd.Parameters.Add("@name", SqlDbType.NVarChar, 150).Value = CurrentUserName;
